@@ -1,0 +1,1669 @@
+app:
+  description: 'AInews_for_LINE + DeepResearch ハイブリッド型 - 8カテゴリを網羅的に調査し、LINE配信用メッセージを作成'
+  icon: 📰
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: AInews_DeepResearch_Hybrid
+  use_icon_as_answer_icon: false
+
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables:
+    - description: 調査済みトピックのリスト
+      id: topics-var
+      name: topics
+      selector:
+        - conversation
+        - topics
+      value: []
+      value_type: array[string]
+    - description: 次に検索するキーワード
+      id: nextSearchTopic-var
+      name: nextSearchTopic
+      selector:
+        - conversation
+        - nextSearchTopic
+      value: ''
+      value_type: string
+    - description: 調査結果（事実）の蓄積リスト
+      id: findings-var
+      name: findings
+      selector:
+        - conversation
+        - findings
+      value: []
+      value_type: array[string]
+    - description: 調査を継続するか否か
+      id: shouldContinue-var
+      name: shouldContinue
+      selector:
+        - conversation
+        - shouldContinue
+      value: 'true'
+      value_type: string
+    - description: 調査済み件数
+      id: findings_count-var
+      name: findings_count
+      selector:
+        - conversation
+        - findings_count
+      value: 0
+      value_type: number
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+        - .SVG
+      allowed_file_types:
+        - image
+      allowed_file_upload_methods:
+        - local_file
+        - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+          - local_file
+          - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+      # Start -> Code (初期化)
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: start
+          targetType: code
+        id: start-to-init
+        source: 'start_node'
+        sourceHandle: source
+        target: 'init_code'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Code -> Iteration
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: iteration
+        id: init-to-iteration
+        source: 'init_code'
+        sourceHandle: source
+        target: 'iteration_node'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Iteration Start -> Category Counter
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: iteration-start
+          targetType: code
+        id: iteration-start-to-category-counter
+        source: 'iteration_node_start'
+        sourceHandle: source
+        target: 'category_counter'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Category Counter -> Search Plan LLM
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: code
+          targetType: llm
+        id: category-counter-to-search-plan
+        source: 'category_counter'
+        sourceHandle: source
+        target: 'search_plan_llm'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Search Plan LLM -> Extract nextSearchTopic
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: llm
+          targetType: tool
+        id: search-plan-to-extract-topic
+        source: 'search_plan_llm'
+        sourceHandle: source
+        target: 'extract_next_search_topic'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Search Plan LLM -> Extract shouldContinue
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: llm
+          targetType: tool
+        id: search-plan-to-extract-continue
+        source: 'search_plan_llm'
+        sourceHandle: source
+        target: 'extract_should_continue'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Extract shouldContinue -> End Condition Checker
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: tool
+          targetType: code
+        id: extract-continue-to-end-checker
+        source: 'extract_should_continue'
+        sourceHandle: source
+        target: 'end_condition_checker'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # End Condition Checker -> Should Continue Check
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: code
+          targetType: if-else
+        id: end-checker-to-should-continue-check
+        source: 'end_condition_checker'
+        sourceHandle: source
+        target: 'should_continue_check'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Should Continue Check (true) -> Tavily Search
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: if-else
+          targetType: tool
+        id: should-continue-true-to-tavily
+        source: 'should_continue_check'
+        sourceHandle: 'true'
+        target: 'tavily_search'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Should Continue Check (false) -> Variable Assigner
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: if-else
+          targetType: assigner
+        id: should-continue-false-to-assigner
+        source: 'should_continue_check'
+        sourceHandle: 'false'
+        target: 'update_variables'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Tavily Search -> Tavily Success Check
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: tool
+          targetType: if-else
+        id: tavily-to-success-check
+        source: 'tavily_search'
+        sourceHandle: source
+        target: 'tavily_success_check'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Tavily Success Check (success) -> Count Findings
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: if-else
+          targetType: code
+        id: tavily-success-to-count-findings
+        source: 'tavily_success_check'
+        sourceHandle: 'success'
+        target: 'count_findings'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Count Findings -> Variable Assigner
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: code
+          targetType: assigner
+        id: count-findings-to-assigner
+        source: 'count_findings'
+        sourceHandle: source
+        target: 'update_variables'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Tavily Success Check (failure) -> Variable Assigner
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: if-else
+          targetType: assigner
+        id: tavily-failure-to-assigner
+        source: 'tavily_success_check'
+        sourceHandle: 'failure'
+        target: 'update_variables'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Variable Assigner -> Template Transform
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: assigner
+          targetType: template-transform
+        id: assigner-to-template
+        source: 'update_variables'
+        sourceHandle: source
+        target: 'intermediate_output_format'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Template Transform -> Variable Aggregator
+      - data:
+          isInIteration: true
+          isInLoop: false
+          iteration_id: 'iteration_node'
+          sourceType: template-transform
+          targetType: variable-aggregator
+        id: template-to-aggregator
+        source: 'intermediate_output_format'
+        sourceHandle: source
+        target: 'intermediate_aggregator'
+        targetHandle: target
+        type: custom
+        zIndex: 1002
+      # Iteration -> Findings Summarizer
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: iteration
+          targetType: code
+        id: iteration-to-summarizer
+        source: 'iteration_node'
+        sourceHandle: source
+        target: 'findings_summarizer'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Findings Summarizer -> Master Report LLM
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: llm
+        id: summarizer-to-master-report
+        source: 'findings_summarizer'
+        sourceHandle: source
+        target: 'master_report_llm'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Master Report LLM -> Message Splitter
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: code
+        id: master-report-to-splitter
+        source: 'master_report_llm'
+        sourceHandle: source
+        target: 'message_splitter'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Message Splitter -> Has Part2 Check
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: if-else
+        id: splitter-to-has-part2-check
+        source: 'message_splitter'
+        sourceHandle: source
+        target: 'has_part2_check'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Has Part2 Check (true) -> LINE Format LLM 2
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: has-part2-true-to-format-2
+        source: 'has_part2_check'
+        sourceHandle: 'true'
+        target: 'line_format_llm_2'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Message Splitter -> LINE Format LLM 1
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: code
+          targetType: llm
+        id: splitter-to-format-1
+        source: 'message_splitter'
+        sourceHandle: source
+        target: 'line_format_llm_1'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # LINE Format LLM 1 -> LINE HTTP 1
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: http-request
+        id: format-1-to-http-1
+        source: 'line_format_llm_1'
+        sourceHandle: source
+        target: 'line_http_1'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # LINE Format LLM 2 -> LINE HTTP 2
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: http-request
+        id: format-2-to-http-2
+        source: 'line_format_llm_2'
+        sourceHandle: source
+        target: 'line_http_2'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # LINE HTTP 1 -> LINE HTTP 2
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: http-request
+          targetType: http-request
+        id: http-1-to-http-2
+        source: 'line_http_1'
+        sourceHandle: source
+        target: 'line_http_2'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # Has Part2 Check (false) -> LINE HTTP 1
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: if-else
+          targetType: http-request
+        id: has-part2-false-to-http-1
+        source: 'has_part2_check'
+        sourceHandle: 'false'
+        target: 'line_http_1'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      # LINE HTTP 2 -> End
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: http-request
+          targetType: end
+        id: http-2-to-end
+        source: 'line_http_2'
+        sourceHandle: source
+        target: 'end_node'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+    nodes:
+      # Start Node
+      - data:
+          desc: ''
+          selected: false
+          title: Start
+          type: start
+          variables:
+            - label: date_range
+              max_length: null
+              options: []
+              required: false
+              type: text-input
+              variable: date_range
+            - label: query_suffix
+              max_length: null
+              options: []
+              required: false
+              type: text-input
+              variable: query_suffix
+            - label: depth
+              max_length: null
+              options: []
+              required: false
+              type: number
+              variable: depth
+              default: 3
+        height: 168
+        id: 'start_node'
+        position:
+          x: 30
+          y: 303
+        positionAbsolute:
+          x: 30
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: 初期化・日付範囲計算
+      - data:
+          code: |
+            def main(depth: int, date_range: str = None) -> dict:
+                depth = depth or 3
+                array = list(range(depth))
+                
+                if not date_range:
+                    from datetime import datetime, timedelta
+                    today = datetime.now()
+                    week_ago = today - timedelta(days=7)
+                    date_range = f"{week_ago.strftime('%Y年%m月%d日')}〜{today.strftime('%Y年%m月%d日')}"
+                
+                return {
+                    "array": array,
+                    "depth": depth,
+                    "date_range": date_range
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            array:
+              children: null
+              type: array[number]
+            depth:
+              children: null
+              type: number
+            date_range:
+              children: null
+              type: string
+          selected: false
+          title: 初期化・日付範囲計算
+          type: code
+          variables:
+            - label: depth
+              max_length: null
+              options: []
+              required: false
+              type: number
+              variable: depth
+            - label: date_range
+              max_length: null
+              options: []
+              required: false
+              type: string
+              variable: date_range
+        height: 126
+        id: 'init_code'
+        position:
+          x: 320
+          y: 303
+        positionAbsolute:
+          x: 320
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Iteration Node
+      - data:
+          desc: ''
+          error_handle_mode: continue-on-error
+          iterator_selector:
+            - init_code
+            - array
+          iterator_input_type: array[number]
+          output_selector:
+            - intermediate_aggregator
+            - output
+          output_type: array[string]
+          parallel_nums: 1
+          selected: false
+          start_node_id: 'category_counter'
+          title: DeepResearchループ
+          type: iteration
+        height: 126
+        id: 'iteration_node'
+        position:
+          x: 610
+          y: 303
+        positionAbsolute:
+          x: 610
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: カテゴリ別カウント
+      - data:
+          code: |
+            def main(findings: list[str]) -> dict:
+                """
+                findingsを分析してカテゴリ別の情報量をカウント
+                """
+                category_keywords = {
+                    "llm": ["大規模言語モデル", "LLM", "foundation model", "基盤モデル", "GPT", "Gemini", "Claude", "大規模言語"],
+                    "business": ["ビジネス", "企業", "business", "enterprise", "投資", "資金調達", "買収", "M&A"],
+                    "research": ["研究", "research", "技術革新", "innovation", "論文", "paper", "学会", "academic"],
+                    "regulation": ["規制", "政策", "regulation", "policy", "法律", "law", "政府", "government"],
+                    "creative": ["クリエイティブ", "creative", "画像生成", "動画生成", "DALL-E", "Midjourney", "Stable Diffusion", "Sora"],
+                    "implementation": ["実用化", "導入", "implementation", "deployment", "採用", "adoption", "活用", "利用"],
+                    "risk": ["リスク", "倫理", "risk", "ethics", "安全性", "safety", "危険性", "問題"],
+                    "future": ["未来", "展望", "future", "outlook", "予測", "prediction", "将来", "trend"]
+                }
+                
+                category_counts = {key: 0 for key in category_keywords.keys()}
+                
+                for finding in findings:
+                    if not finding or not isinstance(finding, str):
+                        continue
+                    finding_lower = finding.lower()
+                    matched = False
+                    for category, keywords in category_keywords.items():
+                        if any(keyword.lower() in finding_lower for keyword in keywords):
+                            category_counts[category] += 1
+                            matched = True
+                            break
+                    if not matched:
+                        pass
+                
+                return {
+                    "category_counts": category_counts,
+                    "total_count": len(findings)
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            category_counts:
+              children:
+                llm:
+                  children: null
+                  type: number
+                business:
+                  children: null
+                  type: number
+                research:
+                  children: null
+                  type: number
+                regulation:
+                  children: null
+                  type: number
+                creative:
+                  children: null
+                  type: number
+                implementation:
+                  children: null
+                  type: number
+                risk:
+                  children: null
+                  type: number
+                future:
+                  children: null
+                  type: number
+              type: object
+            total_count:
+              children: null
+              type: number
+          selected: false
+          title: カテゴリ別カウント
+          type: code
+          variables:
+            - label: findings
+              max_length: null
+              options: []
+              required: true
+              type: array[string]
+              variable: findings
+        height: 126
+        id: 'category_counter'
+        position:
+          x: 900
+          y: 100
+        positionAbsolute:
+          x: 900
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # LLM: 検索計画立案
+      - data:
+          context:
+            enabled: false
+          desc: ''
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash
+            provider: langgenius/gemini/google
+          prompt_template:
+            - id: system
+              role: system
+              text: |
+                あなたはAIニュースの「取材デスク」です。
+                今週のAI業界の動向を「広く網羅的」に収集するために、次に検索すべきトピックを決定してください。
+
+                ## 現在の調査状況
+                - ターゲット期間: {{#start_node.query_suffix#}}
+                - 既に調査したトピック: {{#conversation.topics#}}
+                - 調査済み件数: {{#conversation.findings_count#}}件
+                - イテレーション回数: {{#iteration_node.index#}} / {{#init_code.depth#}}
+
+                ## カテゴリカバー状況
+                各カテゴリの状況:
+                - 大規模言語モデル (llm): {{#category_counter.category_counts.llm#}}件
+                - ビジネス (business): {{#category_counter.category_counts.business#}}件
+                - 研究 (research): {{#category_counter.category_counts.research#}}件
+                - 規制 (regulation): {{#category_counter.category_counts.regulation#}}件
+                - クリエイティブ (creative): {{#category_counter.category_counts.creative#}}件
+                - 実用化 (implementation): {{#category_counter.category_counts.implementation#}}件
+                - リスク (risk): {{#category_counter.category_counts.risk#}}件
+                - 未来 (future): {{#category_counter.category_counts.future#}}件
+
+                ## 必須カバーカテゴリ（全8カテゴリ）
+                以下のリストのうち、まだ情報が不足しているカテゴリを優先してください。
+                1. 大規模言語モデル・基盤モデル
+                2. ビジネス・企業動向
+                3. 研究・技術革新
+                4. 規制・政策
+                5. クリエイティブAI
+                6. 実用化・導入事例
+                7. リスク・倫理
+                8. 未来展望
+
+                ## 検索戦略
+                - **【重要】効率重視**: 1回の検索で複数のカテゴリをカバーできるよう、関連性の高い2〜3個のカテゴリを組み合わせた「複合クエリ」を作成してください。
+                  - 良い例: "AI 規制 政策 リスク 倫理" (カテゴリ4, 7を同時調査)
+                  - 良い例: "Generative AI Creative Future Outlook" (カテゴリ5, 8を同時調査)
+                  - 良い例: "LLM foundation model business enterprise" (カテゴリ1, 2を同時調査)
+                  - 良い例: "AI research innovation technology breakthrough" (カテゴリ3を深掘り)
+                  - 良い例: "AI implementation deployment enterprise adoption" (カテゴリ6を深掘り)
+                - 特定のモデル（Geminiなど）だけでなく、業界全体の動きを広く探すキーワードを選定してください。
+                - 検索済みのtopicsと完全に同じtopicは出力しないでください。
+                - 各カテゴリが3件以上ある場合は、そのカテゴリの優先度を下げてください。
+
+                ## 出力形式 (JSON)
+                必ず以下のJSON形式で出力してください。Markdownのコードブロックは不要です。
+                {
+                  "nextSearchTopic": "カテゴリA カテゴリB 複合キーワード",
+                  "shouldContinue": true,
+                  "reasoning": "なぜこのキーワードを選んだか、どのカテゴリをカバーするか"
+                }
+            - id: user
+              role: user
+              text: |
+                次に検索すべきトピックを決定してください。
+          selected: false
+          title: 検索計画立案
+          type: llm
+          variables:
+            - label: category_counts
+              max_length: null
+              options: []
+              required: true
+              type: object
+              variable: category_counts
+        height: 126
+        id: 'search_plan_llm'
+        position:
+          x: 1200
+          y: 100
+        positionAbsolute:
+          x: 1200
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Tool: JSON Parse (nextSearchTopic)
+      - data:
+          desc: ''
+          provider_id: json_process
+          provider_type: builtin
+          selected: false
+          title: Extract nextSearchTopic
+
+          tool_name: parse
+          tool_parameters:
+            content:
+              type: mixed
+              value: '{{#search_plan_llm.text#}}'
+            json_filter:
+              type: mixed
+              value: nextSearchTopic
+          type: tool
+        height: 126
+        id: 'extract_next_search_topic'
+        position:
+          x: 1500
+          y: 50
+        positionAbsolute:
+          x: 1500
+          y: 50
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Tool: JSON Parse (shouldContinue)
+      - data:
+          desc: ''
+          provider_id: json_process
+          provider_type: builtin
+          selected: false
+          title: Extract shouldContinue
+
+          tool_name: parse
+          tool_parameters:
+            content:
+              type: mixed
+              value: '{{#search_plan_llm.text#}}'
+            json_filter:
+              type: mixed
+              value: shouldContinue
+          type: tool
+        height: 126
+        id: 'extract_should_continue'
+        position:
+          x: 1500
+          y: 150
+        positionAbsolute:
+          x: 1500
+          y: 150
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: 終了条件チェック
+      - data:
+          code: |
+            def main(
+                category_counts: dict,
+                shouldContinue_llm: str,
+                iteration_index: int,
+                max_iterations: int = 5
+            ) -> dict:
+                """
+                客観的な終了条件をチェック
+                """
+                # 全カテゴリが3件以上あるか
+                all_sufficient = all(count >= 3 for count in category_counts.values())
+                
+                # イテレーション回数が上限に達したか
+                reached_max = iteration_index >= max_iterations - 1
+                
+                # LLMの判断
+                llm_says_continue = str(shouldContinue_llm).lower() in ['true', '1', 'yes']
+                
+                # 最終判断
+                if all_sufficient:
+                    final_shouldContinue = False
+                    reason = "全カテゴリ充足"
+                elif reached_max:
+                    final_shouldContinue = False
+                    reason = "最大イテレーション数到達"
+                else:
+                    final_shouldContinue = llm_says_continue
+                    reason = "LLM判断"
+                
+                return {
+                    "shouldContinue": str(final_shouldContinue).lower(),
+                    "reason": reason,
+                    "all_sufficient": all_sufficient,
+                    "reached_max": reached_max
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            shouldContinue:
+              children: null
+              type: string
+            reason:
+              children: null
+              type: string
+            all_sufficient:
+              children: null
+              type: boolean
+            reached_max:
+              children: null
+              type: boolean
+          selected: false
+          title: 終了条件チェック
+          type: code
+          variables:
+            - label: category_counts
+              max_length: null
+              options: []
+              required: true
+              type: object
+              variable: category_counts
+            - label: shouldContinue_llm
+              max_length: null
+              options: []
+              required: true
+              type: string
+              variable: shouldContinue_llm
+            - label: iteration_index
+              max_length: null
+              options: []
+              required: true
+              type: number
+              variable: iteration_index
+        height: 126
+        id: 'end_condition_checker'
+        position:
+          x: 1800
+          y: 150
+        positionAbsolute:
+          x: 1800
+          y: 150
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # IF/ELSE: shouldContinue判定
+      - data:
+          cases:
+            - case_id: 'true'
+              conditions:
+                - comparison_operator: is
+                  value: 'true'
+                  varType: string
+                  variable_selector:
+                    - end_condition_checker
+                    - shouldContinue
+              logical_operator: and
+          desc: ''
+          logical_operator: and
+          selected: false
+          title: shouldContinue判定
+          type: if-else
+        height: 126
+        id: 'should_continue_check'
+        position:
+          x: 2100
+          y: 150
+        positionAbsolute:
+          x: 2100
+          y: 150
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Tool: Tavily Search
+      - data:
+          desc: ''
+          provider_id: tavily
+          provider_type: marketplace
+          selected: false
+          title: Tavily Search
+          tool_configurations:
+            days:
+              type: constant
+              value: 7
+            max_results:
+              type: constant
+              value: 5
+            search_depth:
+              type: constant
+              value: advanced
+            topic:
+              type: constant
+              value: general
+          tool_name: tavily_search
+          tool_parameters:
+            query:
+              type: mixed
+              value: '{{#conversation.nextSearchTopic#}} {{#start_node.query_suffix#}}'
+          type: tool
+        height: 126
+        id: 'tavily_search'
+        position:
+          x: 2400
+          y: 100
+        positionAbsolute:
+          x: 2400
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # IF/ELSE: Tavily成功判定
+      - data:
+          cases:
+            - case_id: 'success'
+              conditions:
+                - comparison_operator: is not empty
+                  varType: string
+                  variable_selector:
+                    - tavily_search
+                    - text
+              logical_operator: and
+          desc: ''
+          logical_operator: and
+          selected: false
+          title: Tavily成功判定
+          type: if-else
+        height: 126
+        id: 'tavily_success_check'
+        position:
+          x: 2700
+          y: 100
+        positionAbsolute:
+          x: 2700
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: findings件数カウント
+      - data:
+          code: |
+            def main(findings: list[str]) -> dict:
+                return {
+                    "count": len(findings)
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            count:
+              children: null
+              type: number
+          selected: false
+          title: findings件数カウント
+          type: code
+          variables:
+            - label: findings
+              max_length: null
+              options: []
+              required: true
+              type: array[string]
+              variable: findings
+        height: 126
+        id: 'count_findings'
+        position:
+          x: 3000
+          y: 50
+        positionAbsolute:
+          x: 3000
+          y: 50
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Variable Assigner: 更新
+      - data:
+          desc: ''
+          items:
+            - input_type: variable
+              operation: over-write
+              value_selector:
+                - extract_next_search_topic
+                - text
+              variable_selector:
+                - conversation
+                - nextSearchTopic
+              write_mode: over-write
+            - input_type: variable
+              operation: over-write
+              value_selector:
+                - end_condition_checker
+                - shouldContinue
+              variable_selector:
+                - conversation
+                - shouldContinue
+              write_mode: over-write
+            - input_type: variable
+              operation: append
+              value_selector:
+                - conversation
+                - nextSearchTopic
+              variable_selector:
+                - conversation
+                - topics
+              write_mode: over-write
+            - input_type: variable
+              operation: append
+              value_selector:
+                - tavily_search
+                - text
+              variable_selector:
+                - conversation
+                - findings
+              write_mode: over-write
+            - input_type: variable
+              operation: over-write
+              value_selector:
+                - count_findings
+                - count
+              variable_selector:
+                - conversation
+                - findings_count
+              write_mode: over-write
+          selected: false
+          title: 変数更新
+          type: assigner
+        height: 126
+        id: 'update_variables'
+        position:
+          x: 3300
+          y: 100
+        positionAbsolute:
+          x: 3300
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Template Transform: 中間出力フォーマット
+      - data:
+          desc: ''
+          selected: false
+          template: |
+            {{ index + 1 }}/{{ depth }}回目の検索を実行しました。
+            検索トピック: {{#conversation.nextSearchTopic#}}
+            終了理由: {{#end_condition_checker.reason#}}
+          title: 中間出力フォーマット
+          type: template-transform
+          variables:
+            - value_selector:
+                - iteration_node
+                - index
+              variable: index
+            - value_selector:
+                - init_code
+                - depth
+              variable: depth
+        height: 126
+        id: 'intermediate_output_format'
+        position:
+          x: 3600
+          y: 100
+        positionAbsolute:
+          x: 3600
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Variable Aggregator: 中間出力集約
+      - data:
+          desc: ''
+          output_type: string
+          selected: false
+          title: 中間出力集約
+          type: variable-aggregator
+          variables:
+            - - intermediate_output_format
+              - output
+        height: 126
+        id: 'intermediate_aggregator'
+        position:
+          x: 3900
+          y: 100
+        positionAbsolute:
+          x: 3900
+          y: 100
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: findings要約
+      - data:
+          code: |
+            def main(findings: list[str], max_items: int = 50) -> dict:
+                """
+                findingsが多すぎる場合、最新のものを残す
+                """
+                if not findings:
+                    return {
+                        "summarized_findings": [],
+                        "was_summarized": False,
+                        "original_count": 0,
+                        "summarized_count": 0
+                    }
+                
+                if len(findings) <= max_items:
+                    return {
+                        "summarized_findings": findings,
+                        "was_summarized": False,
+                        "original_count": len(findings),
+                        "summarized_count": len(findings)
+                    }
+                
+                # 最新のmax_items件を残す
+                summarized = findings[-max_items:]
+                
+                return {
+                    "summarized_findings": summarized,
+                    "was_summarized": True,
+                    "original_count": len(findings),
+                    "summarized_count": len(summarized)
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            summarized_findings:
+              children: null
+              type: array[string]
+            was_summarized:
+              children: null
+              type: boolean
+            original_count:
+              children: null
+              type: number
+            summarized_count:
+              children: null
+              type: number
+          selected: false
+          title: findings要約
+          type: code
+          variables:
+            - label: findings
+              max_length: null
+              options: []
+              required: true
+              type: array[string]
+              variable: findings
+        height: 126
+        id: 'findings_summarizer'
+        position:
+          x: 900
+          y: 303
+        positionAbsolute:
+          x: 900
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # LLM: マスターレポート作成
+      - data:
+          context:
+            enabled: false
+          desc: ''
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.0-flash-thinking-exp-01-21
+            provider: langgenius/gemini/google
+          prompt_template:
+            - id: system
+              role: system
+              text: |
+                あなたはAIニュースの「編集長」です。
+                取材班が集めた大量の検索結果（findings）に基づき、今週のAIニュースの「マスターレポート」を作成してください。
+
+                ## 入力データ
+                {{#findings_summarizer.summarized_findings#}}
+
+                ## 思考プロセス（Thinking）
+                1. **重複排除**: 同じニュースが複数回出現している場合は統合してください。
+                2. **信憑性評価**: 
+                   - 信頼できる情報源（公式発表、主要メディア）を優先
+                   - 推測や噂レベルのものは除外するか、「噂レベル」と明記
+                3. **日付確認**: 指定期間（{{#init_code.date_range#}}）外の古いニュースは除外してください。
+                4. **重要度評価**: 業界への影響度が高いニュースを優先的に記載してください。
+                5. **カテゴリ分類**: 各ニュースを8つのカテゴリに分類してください。
+
+                ## 出力要件
+                - 以下の8つのカテゴリに分類して記述してください。
+                  [大規模言語モデル, ビジネス, 研究, 規制, クリエイティブ, 実用化, リスク, 未来]
+                - 各ニュースには必ず「具体的な数値」「固有名詞」「日付」を含めてください。
+                - 文体は「だ・である」調で、客観的な事実を中心に記述してください。
+                - マークダウン形式で出力してください。
+                - 各カテゴリごとに見出し（##）を付けてください。
+
+                ## 出力フォーマット例
+                # マスターレポート
+
+                ## 大規模言語モデル・基盤モデル
+                - {具体的なニュース1}（2024年1月15日）
+                - {具体的なニュース2}（2024年1月16日）
+                ...
+
+                ## ビジネス・企業動向
+                ...
+            - id: user
+              role: user
+              text: |
+                マスターレポートを作成してください。
+          selected: false
+          title: マスターレポート作成
+          type: llm
+          variables:
+            - label: summarized_findings
+              max_length: null
+              options: []
+              required: true
+              type: array[string]
+              variable: summarized_findings
+        height: 126
+        id: 'master_report_llm'
+        position:
+          x: 1200
+          y: 303
+        positionAbsolute:
+          x: 1200
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # Code: LINEメッセージ分割
+      - data:
+          code: |
+            def main(master_report: str) -> dict:
+                """
+                マスターレポートをLINE送信可能なサイズに分割する
+                カテゴリ境界で分割する
+                """
+                MAX_LENGTH = 3500
+                
+                if not master_report or len(master_report) <= MAX_LENGTH:
+                    return {
+                        "part1": master_report or "",
+                        "part2": "",
+                        "has_part2": False
+                    }
+                
+                # カテゴリ見出し（## で始まる行）を探す
+                lines = master_report.split('\n')
+                category_headings = []
+                for i, line in enumerate(lines):
+                    if line.strip().startswith('## '):
+                        category_headings.append(i)
+                
+                if len(category_headings) <= 1:
+                    # カテゴリ見出しが1つ以下なら、単純に文字数で分割
+                    mid_point = len(master_report) // 2
+                    return {
+                        "part1": master_report[:mid_point],
+                        "part2": master_report[mid_point:],
+                        "has_part2": True
+                    }
+                
+                # 最初の分割点を探す（カテゴリ境界で分割）
+                current_length = 0
+                split_index = 0
+                
+                for i in range(1, len(category_headings)):
+                    # 前の見出しから現在の見出しまでの文字数を計算
+                    start_idx = category_headings[i-1]
+                    end_idx = category_headings[i]
+                    section_text = '\n'.join(lines[start_idx:end_idx])
+                    section_length = len(section_text)
+                    
+                    if current_length + section_length > MAX_LENGTH:
+                        # 前のカテゴリ境界で分割
+                        split_index = category_headings[i-1]
+                        break
+                    current_length += section_length
+                
+                if split_index == 0:
+                    # 分割不要（最後まで行ったがMAX_LENGTHを超えなかった）
+                    return {
+                        "part1": master_report,
+                        "part2": "",
+                        "has_part2": False
+                    }
+                
+                part1_lines = lines[:split_index]
+                part2_lines = lines[split_index:]
+                
+                return {
+                    "part1": "\n".join(part1_lines),
+                    "part2": "\n".join(part2_lines),
+                    "has_part2": True
+                }
+          code_language: python3
+          desc: ''
+          outputs:
+            part1:
+              children: null
+              type: string
+            part2:
+              children: null
+              type: string
+            has_part2:
+              children: null
+              type: boolean
+          selected: false
+          title: LINEメッセージ分割
+          type: code
+          variables:
+            - label: master_report
+              max_length: null
+              options: []
+              required: true
+              type: string
+              variable: master_report
+        height: 126
+        id: 'message_splitter'
+        position:
+          x: 1500
+          y: 303
+        positionAbsolute:
+          x: 1500
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # IF/ELSE: has_part2判定
+      - data:
+          cases:
+            - case_id: 'true'
+              conditions:
+                - comparison_operator: is
+                  value: 'true'
+                  varType: boolean
+                  variable_selector:
+                    - message_splitter
+                    - has_part2
+              logical_operator: and
+          desc: ''
+          logical_operator: and
+          selected: false
+          title: has_part2判定
+          type: if-else
+        height: 126
+        id: 'has_part2_check'
+        position:
+          x: 1800
+          y: 303
+        positionAbsolute:
+          x: 1800
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # LLM: LINE用整形 (Part 1)
+      - data:
+          context:
+            enabled: false
+          desc: ''
+          model:
+            completion_params:
+              reasoning_format: tagged
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.5-flash
+            provider: langgenius/gemini/google
+          prompt_template:
+            - id: system
+              role: system
+              text: |
+                あなたは優秀なAIニュース編集者です。
+                提供されたニューステキストを、LINE配信用の読みやすいフォーマットに整形してください。
+
+                ## 入力テキスト
+                {{#message_splitter.part1#}}
+
+                ## 制約事項
+                - 日付範囲: {{#init_code.date_range#}}
+                - 内容は変更せず、見出しや箇条書きを整えるのみにしてください。
+                - 絵文字を適切に使用してください（🤖 🏢 🔬 ⚖️ 🎨 💼 ⚠️ 🔮）。
+                - 【重要】全体の文字数を必ず「4000文字以内」に収めてください。
+                - 各ニュースの要約は「1行・100文字以内」に短縮してください。
+
+                ## 投稿フォーマット
+                ━━━━━━━━━━━━━━━
+                📰 AI週次ニュースまとめ (前半)
+                日付範囲:{{#init_code.date_range#}}
+                ━━━━━━━━━━━━━━━
+
+                {整形されたニュース内容}
+            - id: user
+              role: user
+              text: |
+                上記の設定とテキストに基づき、LINE用フォーマットに整形してください。
+          selected: false
+          title: LINE用整形 (Part 1)
+          type: llm
+          variables:
+            - label: part1
+              max_length: null
+              options: []
+              required: true
+              type: string
+              variable: part1
+        height: 126
+        id: 'line_format_llm_1'
+        position:
+          x: 2100
+          y: 250
+        positionAbsolute:
+          x: 2100
+          y: 250
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # LLM: LINE用整形 (Part 2)
+      - data:
+          context:
+            enabled: false
+          desc: ''
+          model:
+            completion_params:
+              reasoning_format: tagged
+              temperature: 0.7
+            mode: chat
+            name: gemini-2.5-flash
+            provider: langgenius/gemini/google
+          prompt_template:
+            - id: system
+              role: system
+              text: |
+                あなたは優秀なAIニュース編集者です。
+                提供されたニューステキストを、LINE配信用の読みやすいフォーマットに整形してください。
+
+                ## 入力テキスト
+                {{#message_splitter.part2#}}
+
+                ## 制約事項
+                - 前置きや挨拶は一切不要です。フォーマットの先頭から出力してください。
+                - 絵文字を適切に使用してください。
+                - 【重要】全体の文字数を必ず「4000文字以内」に収めてください。
+                - 最後に、今回のレポートに含まれるトピック総数をカウントして記載してください。
+
+                ## 投稿フォーマット
+                {整形されたニュース内容}
+
+                ━━━━━━━━━━━━━━━
+                📊 今週のトピック数: {合計}件
+                ━━━━━━━━━━━━━━━
+            - id: user
+              role: user
+              text: |
+                上記の設定とテキストに基づき、LINE用フォーマットに整形してください。
+          selected: false
+          title: LINE用整形 (Part 2)
+          type: llm
+          variables:
+            - label: part2
+              max_length: null
+              options: []
+              required: true
+              type: string
+              variable: part2
+        height: 126
+        id: 'line_format_llm_2'
+        position:
+          x: 2100
+          y: 400
+        positionAbsolute:
+          x: 2100
+          y: 400
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # HTTP Request: LINE送信1
+      - data:
+          authorization:
+            type: no-auth
+          body:
+            data: |
+              {
+                "to": "U150a1a01392a90aab3c1f811264e6d6d",
+                "messages": [
+                  {
+                    "type": "text",
+                    "text": "{{#line_format_llm_1.text#}}"
+                  }
+                ]
+              }
+            type: json
+          desc: ''
+          headers: |
+            Content-Type: application/json
+            Authorization: Bearer PENPiNiyIObVEaemgQtaRgQ3OkFwvNsTDNeH032yJrau5XdNvxyDiqNO+1PUl9gUjl2n86LT0D7TYIjLx7Iyj9I5Pq2a84WjWG1G1E8GZOeFcDtq3VRjKapuXuHI9Cf7FUBURfiFMMCR/0iwh1rUQQdB04t89/1O/w1cDnyilFU=
+          method: POST
+          retry_config:
+            max_retries: 3
+            retry_enabled: true
+            retry_interval: 100
+          selected: false
+          timeout:
+            max_connect_timeout: 10
+            max_read_timeout: 30
+            max_write_timeout: 30
+          title: LINE送信1
+          type: http-request
+          url: https://api.line.me/v2/bot/message/push
+          variables: []
+        height: 126
+        id: 'line_http_1'
+        position:
+          x: 2400
+          y: 250
+        positionAbsolute:
+          x: 2400
+          y: 250
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # HTTP Request: LINE送信2
+      - data:
+          authorization:
+            type: no-auth
+          body:
+            data: |
+              {
+                "to": "{YOUR_LINE_USER_ID}",
+                "messages": [
+                  {
+                    "type": "text",
+                    "text": "{{#line_format_llm_2.text#}}"
+                  }
+                ]
+              }
+            type: json
+          desc: ''
+          headers: |
+            Content-Type: application/json
+            Authorization: Bearer {YOUR_LINE_CHANNEL_ACCESS_TOKEN}
+          method: POST
+          retry_config:
+            max_retries: 3
+            retry_enabled: true
+            retry_interval: 100
+          selected: false
+          timeout:
+            max_connect_timeout: 10
+            max_read_timeout: 30
+            max_write_timeout: 30
+          title: LINE送信2
+          type: http-request
+          url: https://api.line.me/v2/bot/message/push
+          variables: []
+        height: 126
+        id: 'line_http_2'
+        position:
+          x: 2700
+          y: 303
+        positionAbsolute:
+          x: 2700
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      # End Node
+      - data:
+          desc: ''
+          outputs: {}
+          selected: false
+          title: End
+          type: end
+        height: 126
+        id: 'end_node'
+        position:
+          x: 3000
+          y: 303
+        positionAbsolute:
+          x: 3000
+          y: 303
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+

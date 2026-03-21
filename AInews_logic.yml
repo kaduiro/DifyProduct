@@ -1,0 +1,783 @@
+app:
+  description: DeepResearch手法でニュースを深掘り調査し、LINE配信用のメッセージを作成して送信するロジックアプリ
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: AInews_Logic
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.2
+workflow:
+  conversation_variables:
+  - id: topics
+    name: topics
+    description: 調査済みトピックのリスト
+    value_type: array[string]
+    value: []
+  - id: findings
+    name: findings
+    description: 調査結果（事実）の蓄積リスト
+    value_type: array[string]
+    value: []
+  - id: nextSearchTopic
+    name: nextSearchTopic
+    description: 次に検索するキーワード
+    value_type: string
+    value: ''
+  - id: shouldContinue
+    name: shouldContinue
+    description: 調査を継続するか否か
+    value_type: string
+    value: 'true'
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - id: start-to-code
+      source: start
+      sourceHandle: source
+      target: code_date_array
+      targetHandle: target
+      type: custom
+    - id: code-to-iteration
+      source: code_date_array
+      sourceHandle: source
+      target: iteration_research
+      targetHandle: target
+      type: custom
+    - id: iteration-to-reasoning
+      source: iteration_research
+      sourceHandle: source
+      target: reasoning_model
+      targetHandle: target
+      type: custom
+    - id: reasoning-to-llm1
+      source: reasoning_model
+      sourceHandle: source
+      target: llm_format_1
+      targetHandle: target
+      type: custom
+    - id: reasoning-to-llm2
+      source: reasoning_model
+      sourceHandle: source
+      target: llm_format_2
+      targetHandle: target
+      type: custom
+    - id: llm1-to-http
+      source: llm_format_1
+      sourceHandle: source
+      target: http_line_push
+      targetHandle: target
+      type: custom
+    - id: llm2-to-http
+      source: llm_format_2
+      sourceHandle: source
+      target: http_line_push
+      targetHandle: target
+      type: custom
+    - id: http-to-end
+      source: http_line_push
+      sourceHandle: source
+      target: end
+      targetHandle: target
+      type: custom
+    nodes:
+    - id: start
+      data:
+        title: 開始
+        type: start
+        variables:
+        - label: depth
+          variable: depth
+          type: number
+          max_length: 48
+          required: false
+          default: 3
+      height: 90
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: code_date_array
+      data:
+        code: |
+          from datetime import datetime, timedelta
+
+          def main(depth: int) -> dict:
+              # 日付計算
+              today = datetime.now()
+              end_date = today - timedelta(days=1)
+              start_date = end_date - timedelta(days=6)
+              date_range = f"{start_date.strftime('%Y年%m月%d日')}〜{end_date.strftime('%Y年%m月%d日')}"
+              query_suffix = f" AI News {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+              
+              # 配列作成
+              depth = depth or 3
+              array = list(range(depth))
+              
+              return {
+                  "array": array,
+                  "date_range": date_range,
+                  "query_suffix": query_suffix
+              }
+        code_language: python3
+        desc: ''
+        outputs:
+        - array
+        - date_range
+        - query_suffix
+        selected: false
+        title: 日付・配列作成
+        type: code
+        variables:
+        - value_selector:
+          - start
+          - depth
+          variable: depth
+      height: 54
+      position:
+        x: 382
+        y: 282
+      positionAbsolute:
+        x: 382
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: iteration_research
+      data:
+        title: DeepResearchイテレーション
+        type: iteration
+        start_node_id: iter_llm_plan
+        iterator_selector:
+        - code_date_array
+        - array
+        output_selector:
+        - aggregator_loop
+        - output
+      height: 148
+      position:
+        x: 684
+        y: 282
+      positionAbsolute:
+        x: 684
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: reasoning_model
+      data:
+        model:
+          mode: chat
+          name: gemini-2.0-flash-thinking-exp-01-21
+          provider: google
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+        - role: system
+          text: |
+            あなたはAIニュースの「編集長」です。
+            取材班が集めた大量の検索結果（findings）に基づき、今週のAIニュースの「マスターレポート」を作成してください。
+
+            ## 入力データ
+            {{#conversation.findings#}}
+
+            ## 思考プロセス（Thinking）
+            1. 重複しているニュースを統合してください。
+            2. 情報の信憑性を評価し、推測や噂レベルのものは除外するか、その旨を明記してください。
+            3. 日付を確認し、指定期間外の古いニュースは除外してください。
+
+            ## 出力要件
+            - 以下の8つのカテゴリに分類して記述してください。
+              [大規模言語モデル, ビジネス, 研究, 規制, クリエイティブ, 実用化, リスク, 未来]
+            - 各ニュースには必ず「具体的な数値」「固有名詞」「日付」を含めてください。
+            - 文体は「だ・である」調で、客観的な事実を中心に記述してください。
+            - マークダウン形式で出力してください。
+        title: Reasoning Model
+        type: llm
+      height: 98
+      position:
+        x: 986
+        y: 282
+      positionAbsolute:
+        x: 986
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: llm_format_1
+      data:
+        model:
+          mode: chat
+          name: gemini-2.0-flash
+          provider: google
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+        - role: system
+          text: |
+            あなたは優秀なAIニュース編集者です。
+            提供された「マスターレポート」から、以下のカテゴリのニュースのみを抽出し、LINE配信用のフォーマットに整形してください。
+
+            ## 入力ソース（マスターレポート）
+            {{#reasoning_model.text#}}
+
+            ## 対象カテゴリ（前半）
+            1. 🤖 大規模言語モデル・基盤モデル
+            2. 🏢 ビジネス・企業動向
+            3. 🔬 研究・技術革新
+            4. ⚖️ 規制・政策
+
+            ## 制約事項
+            - 日付範囲: {{#code_date_array.date_range#}}
+            - 【重要】全体の文字数を必ず「4000文字以内」に収めてください。
+            - 各ニュースの要約は「1行・100文字以内」に短縮し、重要度の低いニュースはカットして全体の件数を減らして調整してください。
+            - 出力が長すぎるとシステムエラーになるため、厳守してください。
+
+            ## 投稿フォーマット
+            ━━━━━━━━━━━━━━━
+            📰 AI週次ニュースまとめ (前半)
+            日付範囲:{{#code_date_array.date_range#}}
+            ━━━━━━━━━━━━━━━
+
+            🤖 大規模言語モデル・基盤モデル 
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             • {ニュース2}（〇〇月〇〇日）
+             ...
+
+            🏢 ビジネス・企業動向
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            🔬 研究・技術革新
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            ⚖️ 規制・政策
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+        title: LLM (1) 前半
+        type: llm
+      height: 98
+      position:
+        x: 1288
+        y: 182
+      positionAbsolute:
+        x: 1288
+        y: 182
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: llm_format_2
+      data:
+        model:
+          mode: chat
+          name: gemini-2.0-flash
+          provider: google
+          completion_params:
+            temperature: 0.7
+        prompt_template:
+        - role: system
+          text: |
+            あなたは優秀なAIニュース編集者です。
+            提供された「マスターレポート」から、以下のカテゴリのニュースのみを抽出し、LINE配信用のフォーマットに整形してください。
+
+            ## 入力ソース（マスターレポート）
+            {{#reasoning_model.text#}}
+
+            ## 対象カテゴリ（後半）
+            5. 🎨 クリエイティブAI
+            6. 💼 実用化・導入事例
+            7. ⚠️ リスク・倫理
+            8. 🔮 未来展望
+
+            ## 制約事項
+            - 【重要】全体の文字数を必ず「4000文字以内」に収めてください。
+            - 前置きや挨拶は一切不要です。フォーマットの先頭（クリエイティブAI）から出力してください。
+            - 最後に、今回のレポートに含まれるトピック総数（前半含む）をカウントして記載してください。
+
+            ## 投稿フォーマット
+            🎨 クリエイティブAI
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            💼 実用化・導入事例
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            ⚠️ リスク・倫理
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            🔮 未来展望
+            ━━━━━━━━━━━━━━━
+             • {ニュース1}（〇〇月〇〇日）
+             ...
+
+            ━━━━━━━━━━━━━━━ 
+            📊 今週のトピック数: {合計}件
+            ━━━━━━━━━━━━━━━
+        title: LLM (2) 後半
+        type: llm
+      height: 98
+      position:
+        x: 1288
+        y: 382
+      positionAbsolute:
+        x: 1288
+        y: 382
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: http_line_push
+      data:
+        method: post
+        url: https://api.line.me/v2/bot/message/push
+        headers: |
+          Content-Type: application/json
+          Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+        body:
+          type: json
+          data: |
+            {
+              "to": "YOUR_USER_ID_HERE",
+              "messages": [
+                {
+                  "type": "text",
+                  "text": "{{#llm_format_1.text#}}"
+                },
+                {
+                  "type": "text",
+                  "text": "{{#llm_format_2.text#}}"
+                }
+              ]
+            }
+        title: HTTP リクエスト
+        type: http-request
+      height: 90
+      position:
+        x: 1590
+        y: 282
+      positionAbsolute:
+        x: 1590
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - id: end
+      data:
+        title: 終了
+        type: end
+        outputs:
+        - value_selector:
+          - llm_format_1
+          - text
+          variable: text1
+        - value_selector:
+          - llm_format_2
+          - text
+          variable: text2
+      height: 90
+      position:
+        x: 1892
+        y: 282
+      positionAbsolute:
+        x: 1892
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Iteration Child Nodes
+    - id: iter_llm_plan
+      data:
+        model:
+          mode: chat
+          name: gemini-2.0-flash
+          provider: google
+          completion_params:
+            temperature: 0.7
+            response_format: json_object
+        prompt_template:
+        - role: system
+          text: |
+            あなたはAIニュースの「取材デスク」です。
+            今週のAI業界の動向を「広く網羅的」に収集するために、次に検索すべきトピックを決定してください。
+
+            ## 現在の調査状況
+            - ターゲット期間: {{#code_date_array.query_suffix#}}
+            - 既に調査したトピック: {{#conversation.topics#}}
+            - 現在の発見事項: {{#conversation.findings#}}
+
+            ## 必須カバーカテゴリ（全8カテゴリ）
+            以下のリストのうち、まだ情報が不足しているカテゴリを優先してください。
+            1. 大規模言語モデル・基盤モデル
+            2. ビジネス・企業動向
+            3. 研究・技術革新
+            4. 規制・政策
+            5. クリエイティブAI
+            6. 実用化・導入事例
+            7. リスク・倫理
+            8. 未来展望
+
+            ## 判断基準と検索戦略
+            - **【重要】効率重視**: 1回の検索で複数のカテゴリをカバーできるよう、関連性の高い2〜3個のカテゴリを組み合わせた「複合クエリ」を作成してください。
+              - 良い例: "AI 規制 政策 リスク 倫理" (4, 7を同時調査)
+              - 良い例: "Generative AI Creative Future Outlook" (5, 8を同時調査)
+            - 特定のモデル（Geminiなど）だけでなく、業界全体の動きを広く探すキーワードを選定してください。
+            - 全8カテゴリの情報が概ね揃ったと判断した場合、shouldContinueをfalseにしてください。
+
+            ## 出力形式
+            必ず以下のJSON形式で出力してください。Markdownのコードブロックは不要です。
+            {
+              "nextSearchTopic": "カテゴリA カテゴリB 複合キーワード",
+              "shouldContinue": true
+            }
+        title: 検索計画立案
+        type: llm
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 98
+      position:
+        x: 684
+        y: 282
+      positionAbsolute:
+        x: 684
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: extract_topic
+      data:
+        title: トピック抽出
+        type: tool
+        provider_id: json_process
+        provider_name: json_process
+        tool_name: parse
+        tool_parameters:
+          content: '{{#iter_llm_plan.text#}}'
+          json_filter: nextSearchTopic
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 986
+        y: 282
+      positionAbsolute:
+        x: 986
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: extract_continue
+      data:
+        title: 継続フラグ抽出
+        type: tool
+        provider_id: json_process
+        provider_name: json_process
+        tool_name: parse
+        tool_parameters:
+          content: '{{#iter_llm_plan.text#}}'
+          json_filter: shouldContinue
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 986
+        y: 392
+      positionAbsolute:
+        x: 986
+        y: 392
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: assign_vars
+      data:
+        title: 変数更新
+        type: assigner
+        items:
+        - variable_selector:
+          - conversation
+          - nextSearchTopic
+          value:
+          - extract_topic
+          - text
+          write_mode: over-write
+        - variable_selector:
+          - conversation
+          - shouldContinue
+          value:
+          - extract_continue
+          - text
+          write_mode: over-write
+        - variable_selector:
+          - conversation
+          - topics
+          value:
+          - conversation
+          - nextSearchTopic
+          write_mode: append
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 1288
+        y: 282
+      positionAbsolute:
+        x: 1288
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: condition_check
+      data:
+        title: 継続判定
+        type: if-else
+        cases:
+        - id: true_case
+          conditions:
+          - variable_selector:
+            - conversation
+            - shouldContinue
+            comparison_operator: is
+            value: 'true'
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 1590
+        y: 282
+      positionAbsolute:
+        x: 1590
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: tavily_search
+      data:
+        title: Tavily検索
+        type: tool
+        provider_id: tavily
+        provider_name: tavily
+        tool_name: tavily_search
+        tool_parameters:
+          query: '{{#conversation.nextSearchTopic#}} {{#code_date_array.query_suffix#}}'
+          search_depth: advanced
+          max_results: 5
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 1892
+        y: 200
+      positionAbsolute:
+        x: 1892
+        y: 200
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: assign_findings
+      data:
+        title: 調査結果蓄積
+        type: assigner
+        items:
+        - variable_selector:
+          - conversation
+          - findings
+          value:
+          - tavily_search
+          - text
+          write_mode: append
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 2194
+        y: 200
+      positionAbsolute:
+        x: 2194
+        y: 200
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: skip_node
+      data:
+        title: スキップ
+        type: template-transform
+        template: 'Skipped'
+        variables: []
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 1892
+        y: 400
+      positionAbsolute:
+        x: 1892
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    - id: aggregator_loop
+      data:
+        title: 集約
+        type: variable-aggregator
+        variables:
+        - - assign_findings
+          - output
+        - - skip_node
+          - output
+        isInIteration: true
+        iteration_id: iteration_research
+      height: 90
+      position:
+        x: 2496
+        y: 282
+      positionAbsolute:
+        x: 2496
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+      zIndex: 1001
+    # Iteration Edges
+    - id: iter_start_to_plan
+      source: iteration_research
+      sourceHandle: start
+      target: iter_llm_plan
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: plan_to_extract_topic
+      source: iter_llm_plan
+      sourceHandle: source
+      target: extract_topic
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: plan_to_extract_continue
+      source: iter_llm_plan
+      sourceHandle: source
+      target: extract_continue
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: extract_to_assign
+      source: extract_topic
+      sourceHandle: source
+      target: assign_vars
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    # Note: Dify UI connects multiple sources to assigner visually
+    - id: assign_to_condition
+      source: assign_vars
+      sourceHandle: source
+      target: condition_check
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: condition_true
+      source: condition_check
+      sourceHandle: true_case
+      target: tavily_search
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: tavily_to_assign_findings
+      source: tavily_search
+      sourceHandle: source
+      target: assign_findings
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: assign_findings_to_agg
+      source: assign_findings
+      sourceHandle: source
+      target: aggregator_loop
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: condition_false
+      source: condition_check
+      sourceHandle: false
+      target: skip_node
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - id: skip_to_agg
+      source: skip_node
+      sourceHandle: source
+      target: aggregator_loop
+      targetHandle: target
+      type: custom
+      zIndex: 1002

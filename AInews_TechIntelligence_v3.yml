@@ -1,0 +1,2009 @@
+app:
+  description: v3.0 テックインテリジェンスワークフロー - AI/ITニュースの自動収集・分析・Slack配信
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: AInews_TechIntelligence_v3
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tavily:0.1.4@63760777d2aed19b308ee4518125bccea491dfa518609802edb6a3a31272c665
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: Supabase Project URL
+    id: env_supabase_url
+    name: SUPABASE_URL
+    selector:
+    - env
+    - SUPABASE_URL
+    value: ''
+    value_type: string
+  - description: Supabase Anonymous Key
+    id: env_supabase_anon_key
+    name: SUPABASE_ANON_KEY
+    selector:
+    - env
+    - SUPABASE_ANON_KEY
+    value: ''
+    value_type: secret
+  - description: Slack Incoming Webhook URL
+    id: env_slack_webhook_url
+    name: SLACK_WEBHOOK_URL
+    selector:
+    - env
+    - SLACK_WEBHOOK_URL
+    value: ''
+    value_type: secret
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: 1000000000001-source-1000000000002-target
+      source: '1000000000001'
+      sourceHandle: source
+      target: '1000000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000002-source-1000000000003-target
+      source: '1000000000002'
+      sourceHandle: source
+      target: '1000000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000002-source-1000000000004-target
+      source: '1000000000002'
+      sourceHandle: source
+      target: '1000000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000002-source-1000000000005-target
+      source: '1000000000002'
+      sourceHandle: source
+      target: '1000000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000003-source-1000000000006-target
+      source: '1000000000003'
+      sourceHandle: source
+      target: '1000000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000004-source-1000000000006-target
+      source: '1000000000004'
+      sourceHandle: source
+      target: '1000000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1000000000006-source-1000000000007-target
+      source: '1000000000006'
+      sourceHandle: source
+      target: '1000000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: parameter-extractor
+      id: 1000000000007-source-1000000000008-target
+      source: '1000000000007'
+      sourceHandle: source
+      target: '1000000000008'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: parameter-extractor
+        targetType: iteration
+      id: 1000000000008-source-1000000000009-target
+      source: '1000000000008'
+      sourceHandle: source
+      target: '1000000000009'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1000000000009'
+        sourceType: iteration-start
+        targetType: llm
+      id: 1000000000009start-source-1000000000010-target
+      source: 1000000000009start
+      sourceHandle: source
+      target: '1000000000010'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1000000000009'
+        sourceType: llm
+        targetType: tool
+      id: 1000000000010-source-1000000000011-target
+      source: '1000000000010'
+      sourceHandle: source
+      target: '1000000000011'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1000000000009'
+        sourceType: tool
+        targetType: code
+      id: 1000000000011-source-1000000000012-target
+      source: '1000000000011'
+      sourceHandle: source
+      target: '1000000000012'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInLoop: false
+        sourceType: iteration
+        targetType: variable-aggregator
+      id: 1000000000009-source-1000000000013-target
+      source: '1000000000009'
+      sourceHandle: source
+      target: '1000000000013'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000005-source-1000000000014-target
+      source: '1000000000005'
+      sourceHandle: source
+      target: '1000000000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: variable-aggregator
+        targetType: code
+      id: 1000000000013-source-1000000000014-target
+      source: '1000000000013'
+      sourceHandle: source
+      target: '1000000000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1000000000014-source-1000000000015-target
+      source: '1000000000014'
+      sourceHandle: source
+      target: '1000000000015'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1000000000015-source-1000000000016-target
+      source: '1000000000015'
+      sourceHandle: source
+      target: '1000000000016'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000016-source-1000000000017-target
+      source: '1000000000016'
+      sourceHandle: source
+      target: '1000000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000017-source-1000000000018-target
+      source: '1000000000017'
+      sourceHandle: source
+      target: '1000000000018'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000018-source-1000000000019-target
+      source: '1000000000018'
+      sourceHandle: source
+      target: '1000000000019'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1000000000018-source-1000000000020-target
+      source: '1000000000018'
+      sourceHandle: source
+      target: '1000000000020'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: end
+      id: 1000000000019-source-1000000000021-target
+      source: '1000000000019'
+      sourceHandle: source
+      target: '1000000000021'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: end
+      id: 1000000000020-source-1000000000021-target
+      source: '1000000000020'
+      sourceHandle: source
+      target: '1000000000021'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: ユーザー入力
+        type: start
+        variables:
+        - default: AI
+          hint: ''
+          label: トピック
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: topic
+      height: 109
+      id: '1000000000001'
+      position:
+        x: 0
+        y: 265
+      positionAbsolute:
+        x: 0
+        y: 265
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "from datetime import datetime, timedelta\nimport json\n\ndef main(topic:\
+          \ str) -> dict:\n    today = datetime.now()\n    # 月水金配信: 前回配信からの差分期間を計算\n\
+          \    weekday = today.weekday()  # 0=月, 2=水, 4=金\n    if weekday == 0:  #\
+          \ 月曜: 金→月の3日分\n        days_back = 3\n    elif weekday == 2:  # 水曜: 月→水の2日分\n\
+          \        days_back = 2\n    elif weekday == 4:  # 金曜: 水→金の2日分\n        days_back\
+          \ = 2\n    else:\n        days_back = 1\n\n    start_date = today - timedelta(days=days_back)\n\
+          \    date_range = f\"{start_date.strftime('%Y年%m月%d日')}〜{today.strftime('%Y年%m月%d日')}\"\
+          \n    query_suffix = f\"after:{start_date.strftime('%Y-%m-%d')}\"\n\n  \
+          \  # 固定5カテゴリ定義\n    fixed_categories = json.dumps([\n        {\"id\": \"\
+          llm\", \"name\": \"LLM/基盤モデル\", \"query_template\": f'(\"{topic} LLM release\"\
+          \ OR \"{topic} foundation model\") {query_suffix}'},\n        {\"id\": \"\
+          devtools\", \"name\": \"開発ツール/フレームワーク\", \"query_template\": f'(\"{topic}\
+          \ developer tools\" OR \"{topic} SDK framework\") {query_suffix}'},\n  \
+          \      {\"id\": \"business\", \"name\": \"ビジネス/企業動向\", \"query_template\"\
+          : f'(\"{topic} business acquisition funding\" OR \"{topic} enterprise\"\
+          ) {query_suffix}'},\n        {\"id\": \"regulation\", \"name\": \"規制/安全性\"\
+          , \"query_template\": f'(\"{topic} regulation policy safety\" OR \"{topic}\
+          \ AI ethics governance\") {query_suffix}'},\n        {\"id\": \"research\"\
+          , \"name\": \"研究/技術革新\", \"query_template\": f'(\"{topic} research breakthrough\"\
+          \ OR \"{topic} new technique paper\") {query_suffix}'}\n    ], ensure_ascii=False)\n\
+          \n    return {\n        \"date_range\": date_range,\n        \"query_suffix\"\
+          : query_suffix,\n        \"start_date_iso\": start_date.strftime('%Y-%m-%d'),\n\
+          \        \"today_iso\": today.strftime('%Y-%m-%d'),\n        \"fixed_categories\"\
+          : fixed_categories\n    }"
+        code_language: python3
+        outputs:
+          date_range:
+            children: null
+            type: string
+          fixed_categories:
+            children: null
+            type: string
+          query_suffix:
+            children: null
+            type: string
+          start_date_iso:
+            children: null
+            type: string
+          today_iso:
+            children: null
+            type: string
+        selected: false
+        title: 初期化・日付計算
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000001'
+          - topic
+          value_type: string
+          variable: topic
+      height: 52
+      id: '1000000000002'
+      position:
+        x: 342
+        y: 294
+      positionAbsolute:
+        x: 342
+        y: 294
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: ''
+          type: none
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: 前回配信データ取得
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/deliveries?order=delivery_date.desc&limit=1'
+        variables: []
+      height: 157
+      id: '1000000000003'
+      position:
+        x: 704
+        y: 12
+      positionAbsolute:
+        x: 704
+        y: 12
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: ''
+          type: none
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: ウォッチリスト取得
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/watchlist?status=eq.watching'
+        variables: []
+      height: 141
+      id: '1000000000004'
+      position:
+        x: 704
+        y: 249
+      positionAbsolute:
+        x: 704
+        y: 249
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: ''
+          type: none
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: ドメイン信頼度取得
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/domain_trust?select=domain,trust_score,category'
+        variables: []
+      height: 157
+      id: '1000000000005'
+      position:
+        x: 1046
+        y: 361
+      positionAbsolute:
+        x: 1046
+        y: 361
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(prev_delivery: str, watchlist: str) -> dict:\n\
+          \    # 前回配信データのパース\n    prev_keywords = []\n    prev_article_titles = []\n\
+          \    try:\n        prev_data = json.loads(prev_delivery)\n        if isinstance(prev_data,\
+          \ list) and len(prev_data) > 0:\n            prev_record = prev_data[0]\n\
+          \            prev_keywords = prev_record.get('keywords', [])\n         \
+          \   categories = prev_record.get('categories', {})\n            for cat_items\
+          \ in categories.values():\n                if isinstance(cat_items, list):\n\
+          \                    for item in cat_items:\n                        if\
+          \ isinstance(item, dict) and 'title' in item:\n                        \
+          \    prev_article_titles.append(item['title'])\n    except:\n        pass\n\
+          \n    # ウォッチリスト解析\n    watch_items = []\n    watch_keywords = []\n    try:\n\
+          \        wl = json.loads(watchlist)\n        if isinstance(wl, list):\n\
+          \            for item in wl:\n                watch_items.append({\n   \
+          \                 \"name\": item.get(\"technology_name\", \"\"),\n     \
+          \               \"id\": item.get(\"id\", \"\"),\n                    \"\
+          history\": item.get(\"update_history\", [])\n                })\n      \
+          \          watch_keywords.append(item.get(\"technology_name\", \"\"))\n\
+          \    except:\n        pass\n\n    return {\n        \"prev_keywords_json\"\
+          : json.dumps(prev_keywords, ensure_ascii=False),\n        \"prev_titles_json\"\
+          : json.dumps(prev_article_titles, ensure_ascii=False),\n        \"watchlist_json\"\
+          : json.dumps(watch_items, ensure_ascii=False),\n        \"watch_keywords\"\
+          : \", \".join(watch_keywords)\n    }"
+        code_language: python3
+        outputs:
+          prev_keywords_json:
+            children: null
+            type: string
+          prev_titles_json:
+            children: null
+            type: string
+          watch_keywords:
+            children: null
+            type: string
+          watchlist_json:
+            children: null
+            type: string
+        selected: false
+        title: 前回データ解析
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000003'
+          - body
+          value_type: string
+          variable: prev_delivery
+        - value_selector:
+          - '1000000000004'
+          - body
+          value_type: string
+          variable: watchlist
+      height: 52
+      id: '1000000000006'
+      position:
+        x: 1066
+        y: 169
+      positionAbsolute:
+        x: 1066
+        y: 169
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.5
+          mode: chat
+          name: claude-sonnet-4-20250514
+          provider: langgenius/anthropic/anthropic
+        prompt_config:
+          jinja2_variables: []
+        prompt_template:
+        - edition_type: basic
+          id: a1b2c3d4-1111-4000-8000-000000000007
+          role: system
+          text: ''
+        - id: a1b2c3d4-2222-4000-8000-000000000007
+          role: user
+          text: 'あなたはAI/ITニュースの調査デスクです。
+
+
+            トピック「{{#1000000000001.topic#}}」について、以下の情報を元に検索クエリを生成してください。
+
+
+            ## 対象期間
+
+            {{#1000000000002.date_range#}}
+
+
+            ## 固定カテゴリ（5枠）
+
+            1. LLM/基盤モデル
+
+            2. 開発ツール/フレームワーク
+
+            3. ビジネス/企業動向
+
+            4. 規制/安全性
+
+            5. 研究/技術革新
+
+
+            ## ウォッチリスト（継続追跡中の技術）
+
+            {{#1000000000006.watch_keywords#}}
+
+
+            ## 要件
+
+            - 固定5カテゴリそれぞれに最適な検索クエリを1つずつ生成
+
+            - ウォッチリストの技術名を含むクエリを1つ追加
+
+            - 変動スポット枠用（急浮上テーマ探索）のクエリを1つ追加
+
+            - 探索枠用（新興技術発掘）のクエリを1つ追加
+
+            - 合計8クエリ
+
+
+            ## クエリ作成ルール
+
+            - 複合キーワードをORで組み合わせる
+
+            - 期間指定: {{#1000000000002.query_suffix#}}
+
+            - 英語と日本語を混ぜて網羅性を確保
+
+
+            ## 出力形式（JSONリストのみ出力）
+
+            ["クエリ1", "クエリ2", ..., "クエリ8"]'
+        selected: false
+        title: 検索戦略立案
+        type: llm
+        vision:
+          enabled: false
+      height: 94
+      id: '1000000000007'
+      position:
+        x: 1408
+        y: 148
+      positionAbsolute:
+        x: 1408
+        y: 148
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        instruction: 入力されたテキストはJSON形式のリストです。これを解析して、query_list という配列に格納してください。
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: claude-sonnet-4-20250514
+          provider: langgenius/anthropic/anthropic
+        parameters:
+        - description: 検索クエリリスト
+          name: query_list
+          required: true
+          type: array[string]
+        query:
+        - '1000000000007'
+        - text
+        reasoning_mode: prompt
+        selected: false
+        title: クエリJSON解析
+        type: parameter-extractor
+        vision:
+          enabled: false
+      height: 94
+      id: '1000000000008'
+      position:
+        x: 1750
+        y: 148
+      positionAbsolute:
+        x: 1750
+        y: 148
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        error_handle_mode: continue-on-error
+        flatten_output: true
+        height: 390
+        is_parallel: true
+        iterator_input_type: array[string]
+        iterator_selector:
+        - '1000000000008'
+        - query_list
+        output_selector:
+        - '1000000000012'
+        - result
+        output_type: array[string]
+        parallel_nums: 2
+        selected: false
+        start_node_id: 1000000000009start
+        title: 検索ループ
+        type: iteration
+        width: 1130
+      height: 390
+      id: '1000000000009'
+      position:
+        x: 2092
+        y: 0
+      positionAbsolute:
+        x: 2092
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 1130
+      zIndex: 1
+    - data:
+        desc: ''
+        isInIteration: true
+        selected: false
+        title: ''
+        type: iteration-start
+      draggable: false
+      height: 48
+      id: 1000000000009start
+      parentId: '1000000000009'
+      position:
+        x: 60
+        y: 171
+      positionAbsolute:
+        x: 2152
+        y: 171
+      selectable: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-iteration-start
+      width: 44
+      zIndex: 1002
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1000000000009'
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: claude-sonnet-4-20250514
+          provider: langgenius/anthropic/anthropic
+        prompt_template:
+        - id: a1b2c3d4-1111-4000-8000-000000000010
+          role: system
+          text: ''
+        - id: a1b2c3d4-2222-4000-8000-000000000010
+          role: user
+          text: 'トピック: {{#1000000000001.topic#}}
+
+            クエリ: {{#1000000000009.item#}}
+
+            期間: {{#1000000000002.query_suffix#}}
+
+
+            上記のクエリを検索エンジン向けに最適化してください。情報の取りこぼしを防ぐため、詳細・特化・広範囲の3層キーワードをORで繋いでください。
+
+
+            形式: ("詳細" OR "特化" OR "広範囲") after:YYYY-MM-DD
+
+
+            最適化されたクエリのみを出力してください。'
+        selected: false
+        title: クエリ最適化
+        type: llm
+        vision:
+          enabled: false
+      height: 94
+      id: '1000000000010'
+      parentId: '1000000000009'
+      position:
+        x: 184
+        y: 148
+      positionAbsolute:
+        x: 2276
+        y: 148
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        is_team_authorization: false
+        iteration_id: '1000000000009'
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: The search query you want to execute with Tavily.
+            ja_JP: The search query you want to execute with Tavily.
+            pt_BR: The search query you want to execute with Tavily.
+            zh_Hans: 您想用 Tavily 执行的搜索查询。
+          label:
+            en_US: Query
+            ja_JP: Query
+            pt_BR: Query
+            zh_Hans: 查询
+          llm_description: The search query.
+          max: null
+          min: null
+          name: query
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: basic
+          form: llm
+          human_description:
+            en_US: The depth of the search.
+            ja_JP: The depth of the search.
+            pt_BR: The depth of the search.
+            zh_Hans: 搜索的深度。
+          label:
+            en_US: Search Depth
+            ja_JP: Search Depth
+            pt_BR: Search Depth
+            zh_Hans: 搜索深度
+          llm_description: The depth of the search. 'basic' for standard search, 'advanced'
+            for more comprehensive results.
+          max: null
+          min: null
+          name: search_depth
+          options:
+          - icon: ''
+            label:
+              en_US: Basic
+              ja_JP: Basic
+              pt_BR: Basic
+              zh_Hans: 基本
+            value: basic
+          - icon: ''
+            label:
+              en_US: Advanced
+              ja_JP: Advanced
+              pt_BR: Advanced
+              zh_Hans: 高级
+            value: advanced
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        - auto_generate: null
+          default: general
+          form: llm
+          human_description:
+            en_US: The category of the search.
+            ja_JP: The category of the search.
+            pt_BR: The category of the search.
+            zh_Hans: 搜索的类别。
+          label:
+            en_US: Topic
+            ja_JP: Topic
+            pt_BR: Topic
+            zh_Hans: 主题
+          llm_description: The category of the search. Options include 'general',
+            'news', or 'finance'.
+          max: null
+          min: null
+          name: topic
+          options:
+          - icon: ''
+            label:
+              en_US: General
+              ja_JP: General
+              pt_BR: General
+              zh_Hans: 一般
+            value: general
+          - icon: ''
+            label:
+              en_US: News
+              ja_JP: News
+              pt_BR: News
+              zh_Hans: 新闻
+            value: news
+          - icon: ''
+            label:
+              en_US: Finance
+              ja_JP: Finance
+              pt_BR: Finance
+              zh_Hans: 金融
+            value: finance
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        - auto_generate: null
+          default: 7
+          form: llm
+          human_description:
+            en_US: The number of days back from the current date to include in the
+              search results (only applicable when "topic" is "news").
+            ja_JP: The number of days back from the current date to include in the
+              search results (only applicable when "topic" is "news").
+            pt_BR: The number of days back from the current date to include in the
+              search results (only applicable when "topic" is "news").
+            zh_Hans: 从当前日期起向前追溯的天数，以包含在搜索结果中（仅当"topic"为"news"时适用）。
+          label:
+            en_US: Days
+            ja_JP: Days
+            pt_BR: Days
+            zh_Hans: 天数
+          llm_description: The number of days back from the current date to include
+            in the search results. Only applicable when "topic" is "news".
+          max: null
+          min: 1
+          name: days
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: not_specified
+          form: llm
+          human_description:
+            en_US: The time range back from the current date to filter results.
+            ja_JP: The time range back from the current date to filter results.
+            pt_BR: The time range back from the current date to filter results.
+            zh_Hans: 从当前日期起向后筛选结果的时间范围。
+          label:
+            en_US: Time Range
+            ja_JP: Time Range
+            pt_BR: Time Range
+            zh_Hans: 时间范围
+          llm_description: The time range back from the current date to filter results.
+            Options include 'not_specified', 'day', 'week', 'month', or 'year'.
+          max: null
+          min: null
+          name: time_range
+          options:
+          - icon: ''
+            label:
+              en_US: Not Specified
+              ja_JP: Not Specified
+              pt_BR: Not Specified
+              zh_Hans: 不指定
+            value: not_specified
+          - icon: ''
+            label:
+              en_US: Day
+              ja_JP: Day
+              pt_BR: Day
+              zh_Hans: 天
+            value: day
+          - icon: ''
+            label:
+              en_US: Week
+              ja_JP: Week
+              pt_BR: Week
+              zh_Hans: 周
+            value: week
+          - icon: ''
+            label:
+              en_US: Month
+              ja_JP: Month
+              pt_BR: Month
+              zh_Hans: 月
+            value: month
+          - icon: ''
+            label:
+              en_US: Year
+              ja_JP: Year
+              pt_BR: Year
+              zh_Hans: 年
+            value: year
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: Automatically configure search parameters based on query content
+              and intent.
+            ja_JP: Automatically configure search parameters based on query content
+              and intent.
+            pt_BR: Automatically configure search parameters based on query content
+              and intent.
+            zh_Hans: 根据查询内容和意图自动配置搜索参数。
+          label:
+            en_US: Auto Parameters
+            ja_JP: Auto Parameters
+            pt_BR: Auto Parameters
+            zh_Hans: 自动参数
+          llm_description: When set to true, Tavily automatically configures search
+            parameters based on your query.
+          max: null
+          min: null
+          name: auto_parameters
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: Include a list of query-related images in the response.
+            ja_JP: Include a list of query-related images in the response.
+            pt_BR: Include a list of query-related images in the response.
+            zh_Hans: 在响应中包含与查询相关的图片列表。
+          label:
+            en_US: Include Images
+            ja_JP: Include Images
+            pt_BR: Include Images
+            zh_Hans: 包含图片
+          llm_description: When set to true, includes a list of query-related images
+            in the response.
+          max: null
+          min: null
+          name: include_images
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: When include_images is True, adds descriptive text for each image.
+            ja_JP: When include_images is True, adds descriptive text for each image.
+            pt_BR: When include_images is True, adds descriptive text for each image.
+            zh_Hans: 当 include_images 为 True 时，为每个图像添加描述文本。
+          label:
+            en_US: Include Image Descriptions
+            ja_JP: Include Image Descriptions
+            pt_BR: Include Image Descriptions
+            zh_Hans: 包含图片描述
+          llm_description: When include_images is True and this is set to true, adds
+            descriptive text for each image.
+          max: null
+          min: null
+          name: include_image_descriptions
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: Include favicon URL for each result.
+            ja_JP: Include favicon URL for each result.
+            pt_BR: Include favicon URL for each result.
+            zh_Hans: 包含每个结果的favicon URL。
+          label:
+            en_US: Include Favicon
+            ja_JP: Include Favicon
+            pt_BR: Include Favicon
+            zh_Hans: 包含Favicon
+          llm_description: When set to true, includes the favicon URL for each result.
+          max: null
+          min: null
+          name: include_favicon
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: Include a short answer to the original query in the response.
+            ja_JP: Include a short answer to the original query in the response.
+            pt_BR: Include a short answer to the original query in the response.
+            zh_Hans: 在响应中包含对原始查询的简短回答。
+          label:
+            en_US: Include Answer
+            ja_JP: Include Answer
+            pt_BR: Include Answer
+            zh_Hans: 包含答案
+          llm_description: When set to true, includes a short answer to the original
+            query in the response.
+          max: null
+          min: null
+          name: include_answer
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: false
+          form: form
+          human_description:
+            en_US: Include the cleaned and parsed HTML content of each search result.
+            ja_JP: Include the cleaned and parsed HTML content of each search result.
+            pt_BR: Include the cleaned and parsed HTML content of each search result.
+            zh_Hans: 包含每个搜索结果的已清理和解析的HTML内容。
+          label:
+            en_US: Include Raw Content
+            ja_JP: Include Raw Content
+            pt_BR: Include Raw Content
+            zh_Hans: 包含原始内容
+          llm_description: When set to true, includes the cleaned and parsed HTML
+            content of each search result.
+          max: null
+          min: null
+          name: include_raw_content
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        - auto_generate: null
+          default: 5
+          form: form
+          human_description:
+            en_US: The maximum number of search results to return.
+            ja_JP: The maximum number of search results to return.
+            pt_BR: The maximum number of search results to return.
+            zh_Hans: 要返回的最大搜索结果数。
+          label:
+            en_US: Max Results
+            ja_JP: Max Results
+            pt_BR: Max Results
+            zh_Hans: 最大结果数
+          llm_description: The maximum number of search results to return. Range is
+            1-20.
+          max: 20
+          min: 1
+          name: max_results
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: 3
+          form: form
+          human_description:
+            en_US: Maximum number of content chunks returned per source (advanced
+              search only).
+            ja_JP: Maximum number of content chunks returned per source (advanced
+              search only).
+            pt_BR: Maximum number of content chunks returned per source (advanced
+              search only).
+            zh_Hans: 每个来源返回的内容片段的最大数量（仅限高级搜索）。
+          label:
+            en_US: Chunks Per Source
+            ja_JP: Chunks Per Source
+            pt_BR: Chunks Per Source
+            zh_Hans: 每来源片段数
+          llm_description: Maximum number of relevant content chunks (1-3) returned
+            per source. Valid only when search_depth is advanced.
+          max: 3
+          min: 1
+          name: chunks_per_source
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: united states
+          form: llm
+          human_description:
+            en_US: Boost search results from a specific country (topic must be general).
+            ja_JP: Boost search results from a specific country (topic must be general).
+            pt_BR: Boost search results from a specific country (topic must be general).
+            zh_Hans: 从特定国家/地区提升搜索结果（主题必须是general）。
+          label:
+            en_US: Country
+            ja_JP: Country
+            pt_BR: Country
+            zh_Hans: 国家
+          llm_description: Select a country to boost its content in results (only
+            when topic is general).
+          max: null
+          min: null
+          name: country
+          options:
+          - icon: ''
+            label:
+              en_US: United States
+              ja_JP: United States
+              pt_BR: United States
+              zh_Hans: 美国
+            value: united states
+          - icon: ''
+            label:
+              en_US: Japan
+              ja_JP: Japan
+              pt_BR: Japan
+              zh_Hans: 日本
+            value: japan
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: select
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: A comma-separated list of domains to specifically include in the
+              search results.
+            ja_JP: A comma-separated list of domains to specifically include in the
+              search results.
+            pt_BR: A comma-separated list of domains to specifically include in the
+              search results.
+            zh_Hans: 要在搜索结果中特别包含的域的逗号分隔列表。
+          label:
+            en_US: Include Domains
+            ja_JP: Include Domains
+            pt_BR: Include Domains
+            zh_Hans: 包含域
+          llm_description: A comma-separated list of domains to specifically include
+            in the search results.
+          max: null
+          min: null
+          name: include_domains
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: A comma-separated list of domains to specifically exclude from
+              the search results.
+            ja_JP: A comma-separated list of domains to specifically exclude from
+              the search results.
+            pt_BR: A comma-separated list of domains to specifically exclude from
+              the search results.
+            zh_Hans: 要从搜索结果中特别排除的域的逗号分隔列表。
+          label:
+            en_US: Exclude Domains
+            ja_JP: Exclude Domains
+            pt_BR: Exclude Domains
+            zh_Hans: 排除域
+          llm_description: A comma-separated list of domains to specifically exclude
+            from the search results.
+          max: null
+          min: null
+          name: exclude_domains
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        params:
+          auto_parameters: ''
+          chunks_per_source: ''
+          country: ''
+          days: ''
+          exclude_domains: ''
+          include_answer: ''
+          include_domains: ''
+          include_favicon: ''
+          include_image_descriptions: ''
+          include_images: ''
+          include_raw_content: ''
+          max_results: ''
+          query: ''
+          search_depth: ''
+          time_range: ''
+          topic: ''
+        plugin_id: langgenius/tavily
+        plugin_unique_identifier: langgenius/tavily:0.1.4@63760777d2aed19b308ee4518125bccea491dfa518609802edb6a3a31272c665
+        provider_id: langgenius/tavily/tavily
+        provider_name: langgenius/tavily/tavily
+        provider_type: builtin
+        selected: false
+        title: Tavily Search
+        tool_configurations:
+          auto_parameters:
+            type: constant
+            value: false
+          chunks_per_source:
+            type: constant
+            value: 3
+          include_answer:
+            type: constant
+            value: false
+          include_favicon:
+            type: constant
+            value: false
+          include_image_descriptions:
+            type: constant
+            value: false
+          include_images:
+            type: constant
+            value: false
+          include_raw_content:
+            type: constant
+            value: false
+          max_results:
+            type: constant
+            value: 5
+        tool_description: A search engine tool built specifically for AI agents (LLMs),
+          delivering real-time, accurate, and factual results at speed.
+        tool_label: Tavily Search
+        tool_name: tavily_search
+        tool_node_version: '2'
+        tool_parameters:
+          country:
+            type: constant
+            value: united states
+          days:
+            type: constant
+            value: 7
+          exclude_domains:
+            type: mixed
+            value: null
+          include_domains:
+            type: mixed
+            value: null
+          query:
+            type: mixed
+            value: '{{#1000000000010.text#}}'
+          search_depth:
+            type: constant
+            value: advanced
+          time_range:
+            type: constant
+            value: not_specified
+          topic:
+            type: constant
+            value: general
+        type: tool
+      height: 270
+      id: '1000000000011'
+      parentId: '1000000000009'
+      position:
+        x: 506
+        y: 60
+      positionAbsolute:
+        x: 2598
+        y: 60
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        code: "import time\n\ndef main(input_data: str) -> dict:\n    time.sleep(1)\n\
+          \    return {\n        \"result\": input_data\n    }"
+        code_language: python3
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1000000000009'
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 結果整形+待機
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000011'
+          - text
+          value_type: string
+          variable: input_data
+      height: 52
+      id: '1000000000012'
+      parentId: '1000000000009'
+      position:
+        x: 828
+        y: 169
+      positionAbsolute:
+        x: 2920
+        y: 169
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        output_type: array[string]
+        selected: false
+        title: 検索結果集約
+        type: variable-aggregator
+        variables:
+        - - '1000000000009'
+          - output
+      height: 108
+      id: '1000000000013'
+      position:
+        x: 3322
+        y: 141
+      positionAbsolute:
+        x: 3322
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport hashlib\nimport re\n\ndef main(raw_findings: list,\
+          \ domain_trust_json: str, prev_titles_json: str, prev_keywords_json: str)\
+          \ -> dict:\n    # ドメイン信頼度テーブル読み込み\n    trust_map = {}\n    try:\n      \
+          \  trust_data = json.loads(domain_trust_json)\n        if isinstance(trust_data,\
+          \ list):\n            for d in trust_data:\n                trust_map[d.get('domain',\
+          \ '')] = {\n                    'score': d.get('trust_score', 5),\n    \
+          \                'category': d.get('category', 'unknown')\n            \
+          \    }\n    except:\n        pass\n\n    # デフォルト信頼度\n    default_trust =\
+          \ {\n        'official': 10, 'academic': 9, 'major_media': 8,\n        'tech_blog':\
+          \ 6, 'sns': 3, 'unknown': 5\n    }\n\n    # 前回データ\n    prev_titles = []\n\
+          \    prev_keywords = []\n    try:\n        prev_titles = json.loads(prev_titles_json)\n\
+          \    except:\n        pass\n    try:\n        prev_keywords = json.loads(prev_keywords_json)\n\
+          \    except:\n        pass\n\n    prev_title_set = set(t.lower().strip()[:30]\
+          \ for t in prev_titles if t)\n    prev_kw_set = set(k.lower().strip() for\
+          \ k in prev_keywords if k)\n\n    # 全findings解析\n    all_items = []\n  \
+          \  for finding_text in raw_findings:\n        if not finding_text:\n   \
+          \         continue\n        # Tavilyの結果はテキスト形式なのでそのまま1アイテムとして扱う\n      \
+          \  lines = finding_text.strip().split('\\n')\n        title = lines[0][:200]\
+          \ if lines else \"不明\"\n        url = \"\"\n        for line in lines:\n\
+          \            if line.startswith('http'):\n                url = line.strip()\n\
+          \                break\n            if 'url:' in line.lower():\n       \
+          \         url = line.split(':', 1)[-1].strip()\n                break\n\n\
+          \        # ドメイン抽出\n        domain = \"\"\n        if url:\n            try:\n\
+          \                from urllib.parse import urlparse\n                parsed\
+          \ = urlparse(url)\n                domain = parsed.netloc.replace('www.',\
+          \ '')\n            except:\n                pass\n\n        # 信頼度スコア\n \
+          \       trust_info = trust_map.get(domain, {})\n        trust_score = trust_info.get('score',\
+          \ 5)\n\n        # 憶測検出\n        speculation_patterns = [\n            r'と見られ',\
+          \ r'か$', r'の可能性', r'噂', r'リーク',\n            r'reportedly', r'rumor', r'allegedly',\
+          \ r'might', r'could be'\n        ]\n        is_speculation = any(re.search(p,\
+          \ finding_text, re.IGNORECASE) for p in speculation_patterns)\n\n      \
+          \  # ハッシュ生成（タイトル正規化+ドメイン）\n        normalized_title = re.sub(r'[\\s\\-_:：【】\\\
+          [\\]「」]', '', title.lower().strip())\n        article_hash = hashlib.sha256(f\"\
+          {normalized_title[:50]}|{domain}\".encode()).hexdigest()[:16]\n\n      \
+          \  # 差分判定\n        title_key = title.lower().strip()[:30]\n        if title_key\
+          \ in prev_title_set:\n            diff_status = \"UPDATE\"\n        else:\n\
+          \            diff_status = \"NEW\"\n\n        all_items.append({\n     \
+          \       \"title\": title,\n            \"url\": url,\n            \"domain\"\
+          : domain,\n            \"trust_score\": trust_score,\n            \"is_speculation\"\
+          : is_speculation,\n            \"hash\": article_hash,\n            \"diff_status\"\
+          : diff_status,\n            \"content\": finding_text[:500]\n        })\n\
+          \n    # 信頼度フィルタ: スコア3未満を除外\n    filtered = [item for item in all_items if\
+          \ item['trust_score'] >= 3]\n\n    # 重複統合: ハッシュベースのクラスタリング\n    clusters\
+          \ = {}\n    for item in filtered:\n        h = item['hash']\n        if\
+          \ h not in clusters:\n            clusters[h] = []\n        clusters[h].append(item)\n\
+          \n    # 各クラスタから代表記事を選出\n    deduplicated = []\n    for h, items in clusters.items():\n\
+          \        representative = max(items, key=lambda x: x['trust_score'])\n \
+          \       representative['source_count'] = len(items)\n        if representative['is_speculation']\
+          \ and representative['source_count'] == 1:\n            representative['label']\
+          \ = '⚠️未確認'\n        else:\n            representative['label'] = ''\n \
+          \       deduplicated.append(representative)\n\n    # NEW/UPDATEの集計\n   \
+          \ new_count = sum(1 for d in deduplicated if d['diff_status'] == 'NEW')\n\
+          \    update_count = sum(1 for d in deduplicated if d['diff_status'] == 'UPDATE')\n\
+          \n    # 今回のキーワード抽出（次回用）\n    current_keywords = list(set(\n        d['title'][:20]\
+          \ for d in deduplicated\n    ))\n\n    # 信頼度順にソート\n    deduplicated.sort(key=lambda\
+          \ x: (-x['trust_score'], -x['source_count']))\n\n    return {\n        \"\
+          filtered_findings\": json.dumps(deduplicated[:30], ensure_ascii=False),\n\
+          \        \"diff_summary\": json.dumps({\n            \"new_count\": new_count,\n\
+          \            \"update_count\": update_count,\n            \"total\": len(deduplicated),\n\
+          \            \"removed_by_filter\": len(all_items) - len(filtered),\n  \
+          \          \"removed_by_dedup\": len(filtered) - len(deduplicated)\n   \
+          \     }, ensure_ascii=False),\n        \"current_keywords\": json.dumps(current_keywords,\
+          \ ensure_ascii=False),\n        \"new_hashes\": json.dumps([d['hash'] for\
+          \ d in deduplicated], ensure_ascii=False)\n    }"
+        code_language: python3
+        outputs:
+          current_keywords:
+            children: null
+            type: string
+          diff_summary:
+            children: null
+            type: string
+          filtered_findings:
+            children: null
+            type: string
+          new_hashes:
+            children: null
+            type: string
+        selected: false
+        title: 信頼度フィルタ+重複統合+差分検知
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000013'
+          - output
+          value_type: array[string]
+          variable: raw_findings
+        - value_selector:
+          - '1000000000005'
+          - body
+          value_type: string
+          variable: domain_trust_json
+        - value_selector:
+          - '1000000000006'
+          - prev_titles_json
+          value_type: string
+          variable: prev_titles_json
+        - value_selector:
+          - '1000000000006'
+          - prev_keywords_json
+          value_type: string
+          variable: prev_keywords_json
+      height: 52
+      id: '1000000000014'
+      position:
+        x: 3684
+        y: 178
+      positionAbsolute:
+        x: 3684
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.3
+          mode: chat
+          name: claude-sonnet-4-20250514
+          provider: langgenius/anthropic/anthropic
+        prompt_config:
+          jinja2_variables: []
+        prompt_template:
+        - edition_type: basic
+          id: a1b2c3d4-1111-4000-8000-000000000015
+          role: system
+          text: ''
+        - id: a1b2c3d4-2222-4000-8000-000000000015
+          role: user
+          text: "あなたはAI/IT技術のインテリジェンスアナリストです。\n以下の検索結果を分析し、開発者向けテックインテリジェンスレポートを作成してください。\n\
+            \n## 対象期間\n{{#1000000000002.date_range#}}\n\n## 検索結果（信頼度フィルタ・重複統合済み）\n\
+            {{#1000000000014.filtered_findings#}}\n\n## 差分サマリー\n{{#1000000000014.diff_summary#}}\n\
+            \n## ウォッチリスト（継続追跡中の技術）\n{{#1000000000006.watchlist_json#}}\n\n## 前回のキーワード\n\
+            {{#1000000000006.prev_keywords_json#}}\n\n## 出力ルール\n\n### 1. 変化ハイライト（3行以内）\n\
+            前回から最も重要な変化を3行でまとめる。差分ステータス([NEW]または[UPDATE])を必ず付与。\n\n### 2. 定点観測（固定5カテゴリ）\n\
+            各カテゴリに2-4件。各ニュースは以下の3点固定フォーマット:\n[差分] タイトル（日付）\n  何が起きた: 事実1行。日付・固有名詞・数値を必ず含む\n\
+            \  誰に効く: 以下から1-3個選択 → BE(バックエンド), FE(フロントエンド), ML(MLエンジニア), Infra(DevOps/SRE),\
+            \ PM(プロダクトマネージャー), CTO(技術選定者)\n  試すべきこと: 具体的アクション1行。可能ならURLを含む\n\nカテゴリ:\n\
+            1. LLM/基盤モデル\n2. 開発ツール/フレームワーク\n3. ビジネス/企業動向\n4. 規制/安全性\n5. 研究/技術革新\n\n\
+            ### 3. 今週のスポットライト（変動1枠）\n今回の検索結果で最も密度の高い新テーマを1つ検出し、詳しく解説。\n固定5カテゴリに収まらない急浮上テーマを選ぶこと。\n\
+            \n### 4. ウォッチリスト進捗\nウォッチリストの各技術について、今回の検索結果に関連情報があれば報告。\n形式: [技術名] (N週目)\
+            \ ↗️上昇/→安定/↘️下降\n  進展: 前回からの変化を1-2行で\n\n### 5. 今週の発掘（探索枠1件）\nまだ主流メディアで取り上げられていないが、伸びそうな技術を1件選出。\n\
+            選出基準: 検索結果に出てきたがマイナーなもの、またはGitHub stars急伸のプロジェクト。\n\n### 出力フォーマット（Slack\
+            \ mrkdwn記法）\n- 太字は *テキスト* （アスタリスク1つ）\n- リンクは <URL|テキスト>\n- 箇条書しは • （ビュレット）\n\
+            - セクション区切りは ━━━\n- 差分ラベル: \U0001F195[NEW], \U0001F504[UPDATE], \U0001F4CD\
+            [WATCH]\n\n### 制約\n- 全体を5000文字以内に収める\n- 期間外のニュースは除外\n- 憶測・未確認情報には ⚠️ を付与\n\
+            - 「何を試すべきか」は必ず具体的に（「検討する」のような曖昧な表現は禁止）"
+        selected: false
+        title: カテゴリ分類+実務インパクト分析
+        type: llm
+        vision:
+          enabled: false
+      height: 94
+      id: '1000000000015'
+      position:
+        x: 4026
+        y: 157
+      positionAbsolute:
+        x: 4026
+        y: 157
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(report_text: str, date_range: str, diff_summary:\
+          \ str) -> dict:\n    diff = {}\n    try:\n        diff = json.loads(diff_summary)\n\
+          \    except:\n        pass\n\n    new_count = diff.get('new_count', 0)\n\
+          \    update_count = diff.get('update_count', 0)\n    total = diff.get('total',\
+          \ 0)\n\n    header_text = f\"AI/IT テックインテリジェンス {date_range}\"\n    subheader\
+          \ = f\"前回から: \U0001F195 NEW {new_count}件 / \U0001F504 UPDATE {update_count}件\
+          \ / \U0001F4CA 合計{total}件\"\n\n    blocks = [\n        {\n            \"\
+          type\": \"header\",\n            \"text\": {\"type\": \"plain_text\", \"\
+          text\": header_text[:150], \"emoji\": True}\n        },\n        {\n   \
+          \         \"type\": \"context\",\n            \"elements\": [{\"type\":\
+          \ \"mrkdwn\", \"text\": subheader}]\n        },\n        {\"type\": \"divider\"\
+          }\n    ]\n\n    # レポート本文をセクション分割\n    sections = report_text.split('━━━')\n\
+          \    for section in sections:\n        section = section.strip()\n     \
+          \   if not section:\n            continue\n        # 3000文字制限対応\n      \
+          \  if len(section) > 2900:\n            chunks = [section[i:i+2900] for\
+          \ i in range(0, len(section), 2900)]\n            for chunk in chunks:\n\
+          \                blocks.append({\n                    \"type\": \"section\"\
+          ,\n                    \"text\": {\"type\": \"mrkdwn\", \"text\": chunk}\n\
+          \                })\n        else:\n            blocks.append({\n      \
+          \          \"type\": \"section\",\n                \"text\": {\"type\":\
+          \ \"mrkdwn\", \"text\": section}\n            })\n        blocks.append({\"\
+          type\": \"divider\"})\n\n    # フッター\n    blocks.append({\n        \"type\"\
+          : \"context\",\n        \"elements\": [{\"type\": \"mrkdwn\", \"text\":\
+          \ \"\U0001F916 Powered by Dify + Claude | 自動生成レポート\"}]\n    })\n\n    #\
+          \ 50ブロック上限対応\n    if len(blocks) > 49:\n        main_blocks = blocks[:48]\n\
+          \        main_blocks.append(blocks[-1])  # フッター\n        overflow_blocks\
+          \ = blocks[48:-1]\n        return {\n            \"main_blocks\": json.dumps(main_blocks,\
+          \ ensure_ascii=False),\n            \"overflow_blocks\": json.dumps(overflow_blocks,\
+          \ ensure_ascii=False),\n            \"has_overflow\": \"true\"\n       \
+          \ }\n\n    return {\n        \"main_blocks\": json.dumps(blocks, ensure_ascii=False),\n\
+          \        \"overflow_blocks\": \"[]\",\n        \"has_overflow\": \"false\"\
+          \n    }"
+        code_language: python3
+        outputs:
+          has_overflow:
+            children: null
+            type: string
+          main_blocks:
+            children: null
+            type: string
+          overflow_blocks:
+            children: null
+            type: string
+        selected: false
+        title: Slack Block Kit生成
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000015'
+          - text
+          value_type: string
+          variable: report_text
+        - value_selector:
+          - '1000000000002'
+          - date_range
+          value_type: string
+          variable: date_range
+        - value_selector:
+          - '1000000000014'
+          - diff_summary
+          value_type: string
+          variable: diff_summary
+      height: 52
+      id: '1000000000016'
+      position:
+        x: 4368
+        y: 178
+      positionAbsolute:
+        x: 4368
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-001
+            key: ''
+            type: text
+            value: '{"blocks": {{#1000000000016.main_blocks#}}, "text": "AI/IT テックインテリジェンス
+              {{#1000000000002.date_range#}}"}'
+          type: raw-text
+        headers: Content-Type:application/json
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: Slack送信（メイン）
+        type: http-request
+        url: '{{#env.SLACK_WEBHOOK_URL#}}'
+        variables: []
+      height: 125
+      id: '1000000000017'
+      position:
+        x: 4710
+        y: 141
+      positionAbsolute:
+        x: 4710
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nfrom datetime import datetime\n\ndef main(filtered_findings:\
+          \ str, current_keywords: str, new_hashes: str, date_range: str, report_text:\
+          \ str, diff_summary: str, today_iso: str) -> dict:\n    delivery_record\
+          \ = {\n        \"delivery_date\": today_iso,\n        \"date_range\": date_range,\n\
+          \        \"keywords\": json.loads(current_keywords) if current_keywords\
+          \ else [],\n        \"categories\": {},\n        \"diff_summary\": json.loads(diff_summary)\
+          \ if diff_summary else {}\n    }\n\n    # findingsからカテゴリ別に整理\n    try:\n\
+          \        findings = json.loads(filtered_findings)\n        for f in findings:\n\
+          \            delivery_record[\"categories\"][f.get(\"title\", \"\")[:50]]\
+          \ = f\n    except:\n        pass\n\n    hashes_to_save = []\n    try:\n\
+          \        hashes = json.loads(new_hashes)\n        findings = json.loads(filtered_findings)\n\
+          \        for i, h in enumerate(hashes):\n            if i < len(findings):\n\
+          \                hashes_to_save.append({\n                    \"hash\":\
+          \ h,\n                    \"title\": findings[i].get(\"title\", \"\"),\n\
+          \                    \"url\": findings[i].get(\"url\", \"\"),\n        \
+          \            \"source_domain\": findings[i].get(\"domain\", \"\"),\n   \
+          \                 \"first_seen_date\": today_iso\n                })\n \
+          \   except:\n        pass\n\n    return {\n        \"delivery_json\": json.dumps(delivery_record,\
+          \ ensure_ascii=False),\n        \"hashes_json\": json.dumps(hashes_to_save,\
+          \ ensure_ascii=False)\n    }"
+        code_language: python3
+        outputs:
+          delivery_json:
+            children: null
+            type: string
+          hashes_json:
+            children: null
+            type: string
+        selected: false
+        title: 保存データ準備
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000014'
+          - filtered_findings
+          value_type: string
+          variable: filtered_findings
+        - value_selector:
+          - '1000000000014'
+          - current_keywords
+          value_type: string
+          variable: current_keywords
+        - value_selector:
+          - '1000000000014'
+          - new_hashes
+          value_type: string
+          variable: new_hashes
+        - value_selector:
+          - '1000000000002'
+          - date_range
+          value_type: string
+          variable: date_range
+        - value_selector:
+          - '1000000000015'
+          - text
+          value_type: string
+          variable: report_text
+        - value_selector:
+          - '1000000000014'
+          - diff_summary
+          value_type: string
+          variable: diff_summary
+        - value_selector:
+          - '1000000000002'
+          - today_iso
+          value_type: string
+          variable: today_iso
+      height: 52
+      id: '1000000000018'
+      position:
+        x: 5052
+        y: 178
+      positionAbsolute:
+        x: 5052
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-002
+            key: ''
+            type: text
+            value: '{{#1000000000018.delivery_json#}}'
+          type: raw-text
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json
+
+          Prefer:return=minimal'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: 配信履歴保存
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/deliveries'
+        variables: []
+      height: 141
+      id: '1000000000019'
+      position:
+        x: 5414
+        y: 124
+      positionAbsolute:
+        x: 5414
+        y: 124
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-003
+            key: ''
+            type: text
+            value: '{{#1000000000018.hashes_json#}}'
+          type: raw-text
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json
+
+          Prefer:return=minimal'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 30
+          max_write_timeout: 0
+        title: 記事ハッシュ保存
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/article_hashes'
+        variables: []
+      height: 141
+      id: '1000000000020'
+      position:
+        x: 5414
+        y: 345
+      positionAbsolute:
+        x: 5414
+        y: 345
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        outputs:
+        - value_selector:
+          - '1000000000015'
+          - text
+          variable: report
+        selected: false
+        title: 完了
+        type: end
+      height: 88
+      id: '1000000000021'
+      position:
+        x: 5776
+        y: 166
+      positionAbsolute:
+        x: 5776
+        y: 166
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -107.25077816248518
+      y: 177.3432535903695
+      zoom: 0.7578582832551989
+  rag_pipeline_variables: []

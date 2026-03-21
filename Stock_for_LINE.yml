@@ -1,0 +1,1112 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: Stock_for_LINE
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.6.4@17f286b2d6699a258a2eba8bc1bff71b8f795b6aa7bee1464cbfa450b451303a
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 1763978849154-source-17639808785900-target
+      source: '1763978849154'
+      sourceHandle: source
+      target: '17639808785900'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 17639808785900-source-17639810165510-target
+      source: '17639808785900'
+      sourceHandle: source
+      target: '17639810165510'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 17639810165510-source-17639807270150-target
+      source: '17639810165510'
+      sourceHandle: source
+      target: '17639807270150'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 17639807270150-source-17639811829550-target
+      source: '17639807270150'
+      sourceHandle: source
+      target: '17639811829550'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 17639814359570-source-1763978849154-target
+      source: '17639814359570'
+      sourceHandle: source
+      target: '1763978849154'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: 17639811829550-source-1763981571172-target
+      selected: false
+      source: '17639811829550'
+      sourceHandle: source
+      target: '1763981571172'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: http-request
+      id: 1763981571172-source-1763992648500-target
+      source: '1763981571172'
+      sourceHandle: source
+      target: '1763992648500'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: trigger-schedule
+        targetType: tool
+      id: 1764043340113-source-17639814359570-target
+      source: '1764043340113'
+      sourceHandle: source
+      target: '17639814359570'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        config:
+          frequency: daily
+          mode: visual
+          timezone: UTC
+          visual_config:
+            monthly_days:
+            - 1
+            on_minute: 0
+            time: 12:00 AM
+            weekdays:
+            - sun
+        frequency: daily
+        mode: visual
+        selected: false
+        timezone: America/New_York
+        title: スケジュールトリガー
+        type: trigger-schedule
+        visual_config:
+          monthly_days:
+          - 1
+          on_minute: 0
+          time: 7:00 AM
+          weekdays:
+          - sun
+      height: 129
+      id: '1764043340113'
+      position:
+        x: -255.13899454586743
+        y: 261
+      positionAbsolute:
+        x: -255.13899454586743
+        y: 261
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: 日本株
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/stocks
+        type: tool
+      height: 113
+      id: '1763978849154'
+      position:
+        x: 82.62664888454094
+        y: 464.68854965846157
+      positionAbsolute:
+        x: 82.62664888454094
+        y: 464.68854965846157
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: 投資信託
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/funds
+        type: tool
+      height: 113
+      id: '17639807270150'
+      position:
+        x: 503.44027361506596
+        y: 464.68854965846157
+      positionAbsolute:
+        x: 503.44027361506596
+        y: 464.68854965846157
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: '米国株 '
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/stocks/us
+        type: tool
+      height: 113
+      id: '17639808785900'
+      position:
+        x: 82.62664888454094
+        y: 636.0378100277773
+      positionAbsolute:
+        x: 82.62664888454094
+        y: 636.0378100277773
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: FX・為替
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/fx
+        type: tool
+      height: 113
+      id: '17639810165510'
+      position:
+        x: 503.44027361506596
+        y: 282
+      positionAbsolute:
+        x: 503.44027361506596
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: ニュース
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/news
+        type: tool
+      height: 113
+      id: '17639811829550'
+      position:
+        x: 503.44027361506596
+        y: 636.0378100277773
+      positionAbsolute:
+        x: 503.44027361506596
+        y: 636.0378100277773
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for linking to webpages
+            ja_JP: used for linking to webpages
+            pt_BR: used for linking to webpages
+            zh_Hans: 用于链接到网页
+          label:
+            en_US: URL
+            ja_JP: URL
+            pt_BR: URL
+            zh_Hans: 网页链接
+          llm_description: url for scraping
+          max: null
+          min: null
+          name: url
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+            like Gecko) Chrome/100.0.1000.0 Safari/537.36
+          form: form
+          human_description:
+            en_US: used for identifying the browser.
+            ja_JP: used for identifying the browser.
+            pt_BR: used for identifying the browser.
+            zh_Hans: 用于识别浏览器。
+          label:
+            en_US: User Agent
+            ja_JP: User Agent
+            pt_BR: User Agent
+            zh_Hans: User Agent
+          llm_description: null
+          max: null
+          min: null
+          name: user_agent
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: 'false'
+          form: form
+          human_description:
+            en_US: If true, the crawler will only return the page summary content.
+            ja_JP: If true, the crawler will only return the page summary content.
+            pt_BR: If true, the crawler will only return the page summary content.
+            zh_Hans: 如果启用，爬虫将仅返回页面摘要内容。
+          label:
+            en_US: Whether to generate summary
+            ja_JP: Whether to generate summary
+            pt_BR: Whether to generate summary
+            zh_Hans: 是否生成摘要
+          llm_description: null
+          max: null
+          min: null
+          name: generate_summary
+          options:
+          - icon: null
+            label:
+              en_US: 'Yes'
+              ja_JP: 'Yes'
+              pt_BR: 'Yes'
+              zh_Hans: 是
+            value: 'true'
+          - icon: null
+            label:
+              en_US: 'No'
+              ja_JP: 'No'
+              pt_BR: 'No'
+              zh_Hans: 否
+            value: 'false'
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: boolean
+        params:
+          generate_summary: ''
+          url: ''
+          user_agent: ''
+        plugin_id: null
+        plugin_unique_identifier: ''
+        provider_icon: https://cloud.dify.ai/console/api/workspaces/current/tool-provider/builtin/webscraper/icon
+        provider_id: webscraper
+        provider_name: webscraper
+        provider_type: builtin
+        selected: false
+        title: トップページ
+        tool_configurations:
+          generate_summary:
+            type: constant
+            value: 'false'
+          user_agent:
+            type: mixed
+            value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+              like Gecko) Chrome/100.0.1000.0 Safari/537.36
+        tool_description: A tool for scraping webpages.
+        tool_label: Web Scraper
+        tool_name: webscraper
+        tool_node_version: '2'
+        tool_parameters:
+          url:
+            type: mixed
+            value: https://finance.yahoo.co.jp/
+        type: tool
+      height: 113
+      id: '17639814359570'
+      position:
+        x: 82.62664888454094
+        y: 282
+      positionAbsolute:
+        x: 82.62664888454094
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-2.5-pro
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: 72abaa8f-a09e-4bb5-aaba-13780054450d
+          role: system
+          text: "# Role: 金融市場アナリスト（国内市場担当）\nあなたは、金融機関のリサーチ部門に所属するプロの市場アナリストです。\n以下の「##\
+            \ 取得したWebサイト情報」に基づき、経営企画や営業企画のメンバーに向けて、定量的データに基づいた簡潔で分かりやすい日本語のサマリレポートを作成してください。\n\
+            \n## 検索ソース1（トップページ）\n{{#17639814359570.text#}}\n## 検索ソース2（日本株）\n{{#1763978849154.text#}}\n\
+            ## 検索ソース3（米国株）\n{{#17639808785900.text#}}\n## 検索ソース4（FX・為替）\n{{#17639810165510.text#}}\n\
+            ## 検索ソース5（投資信託）\n{{#17639807270150.text#}}\n## 検索ソース6（ニュース）\n{{#17639811829550.text#}}\n\
+            \n# Instructions:\n上記のテキスト情報**のみ**を使用し、以下の要件を満たすレポートを作成してください。外部知識による補完は行わないでください。\n\
+            \n1. **全体構成**:\n   - レポート全体の文字数は4000文字程度を目安としてください。\n   - 専門用語には必要に応じて短い補足を入れ、平易な表現を心がけてください。\n\
+            \n2. **市場の変動要因（定量＋定性）**:\n   - 前日の主要な市場指標について、必ず「定量的な数値（終値や変化率）」と「それに対する簡潔な定性的コメント（要因分析）」をセットで記述してください。\n\
+            \   - 定性コメントは**1行**で、主語と因果関係（「〜を受け、〜が変動」など）が明確になるように記述してください。\n\n3. **必須項目**:\n\
+            \   情報の欠落がない限り、以下の項目を含めてください。\n   - 日本株：日経平均、TOPIX\n   - 為替・金利：USD/JPY、米10年債利回り\n\
+            \   - セクター動向：値上がり/値下がりが目立ったセクター\n   - 米国株・コモディティ：NYダウ、S&P500、WTI原油先物\n\
+            \n# 出力フォーマット例:\n**【市況サマリ】yyyy/mm/dd**\n\n**1. 市場概況**\n* 日経平均: 39,210.32\
+            \ (+1.2%)、TOPIX: +0.9%\n  → 円安進行（1ドル=153.8円）により輸出関連中心に買いが先行。\n* USD/JPY:\
+            \ 153.8 (+0.5円)、米10年債: 4.38% (-3bp)\n  → FRB高官のハト派発言を受け、金利上昇が一服。\n\n**2.\
+            \ セクター・個別動向**\n* (ここに記事から読み取れるセクター情報を記述)\n\n**3. 本日の注目ポイント**\n* (ここに今後の見通しや注目イベントを記述)"
+        - id: 0b9b3c8f-2c40-4c4b-8166-b2c066178367
+          role: user
+          text: '以下の検索結果を使用して、レポートを作成してください。
+
+
+            ## 検索ソース1（トップページ）
+
+            {{#17639814359570.text#}}
+
+            ## 検索ソース2（日本株）
+
+            {{#1763978849154.text#}}
+
+            ## 検索ソース3（米国株）
+
+            {{#17639808785900.text#}}
+
+            ## 検索ソース4（FX・為替）
+
+            {{#17639810165510.text#}}
+
+            ## 検索ソース5（投資信託）
+
+            {{#17639807270150.text#}}
+
+            ## 検索ソース6（ニュース）
+
+            {{#17639811829550.text#}}
+
+
+            さあ、作成を開始してください。'
+        - id: d129b955-01a3-42a5-99fa-f253160ff0f0
+          role: assistant
+          text: ''
+        selected: false
+        title: LLM
+        type: llm
+        vision:
+          enabled: false
+      height: 87
+      id: '1763981571172'
+      position:
+        x: 920.4741352492096
+        y: 282
+      positionAbsolute:
+        x: 920.4741352492096
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-4818
+            key: ''
+            type: text
+            value: "{\n  \"to\": \"U150a1a01392a90aab3c1f811264e6d6d\",\n  \"messages\"\
+              : [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{#1763981571172.text#}}\"\
+              \n    },\n  ]\n}"
+          type: json
+        headers: 'Content-Type:application/json
+
+          Authorization:Bearer B+w0zIt90syyrgVrnYzyaK7x1fu1dGb3XZvDciS7mrqg8H1vJExM5jAYPJeH2ZIlO4fJK7CEGtelvik39IkvCbpY/oDZhWFZ8MZKCIrgtR2vQ2Uzv4pJYTvwqaQjT02PpnbfqG2ll9Be3tkkCiZKNwdB04t89/1O/w1cDnyilFU='
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: true
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP リクエスト
+        type: http-request
+        url: https://api.line.me/v2/bot/message/push
+        variables: []
+      height: 137
+      id: '1763992648500'
+      position:
+        x: 1287.1111555982598
+        y: 282.2975308677348
+      positionAbsolute:
+        x: 1287.1111555982598
+        y: 282.2975308677348
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -831.8909313864099
+      y: -314.25458556209617
+      zoom: 1.2599211067510414
+  rag_pipeline_variables: []
