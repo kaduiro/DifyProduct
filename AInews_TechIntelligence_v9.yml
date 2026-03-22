@@ -1,10 +1,10 @@
 app:
-  description: v8.0 テックインテリジェンスワークフロー - 一次情報（RSS/arXiv/GitHub Releases）直接取得+Tavily検索（一次情報限定含む）によるAI/ITニュースの自動収集・分析・Slack配信
+  description: v9.0 テックインテリジェンスワークフロー - 一次情報（RSS/arXiv/GitHub Releases）直接取得+Tavily検索（一次情報限定含む）によるAI/ITニュースの自動収集・分析・Slack配信。DB保存→Slack送信の順序変更、execution_logによる実行履歴記録、連続失敗検知+エスカレーション通知によるエラーハンドリング強化
   icon: 🤖
   icon_background: '#FFEAD5'
   icon_type: emoji
   mode: workflow
-  name: AInews_TechIntelligence_v8
+  name: AInews_TechIntelligence_v9
   use_icon_as_answer_icon: false
 dependencies:
 - current_identifier: null
@@ -301,10 +301,10 @@ workflow:
       zIndex: 0
     - data:
         isInLoop: false
-        sourceType: http-request
+        sourceType: llm
         targetType: code
-      id: 1000000000017-source-1000000000018-target
-      source: '1000000000017'
+      id: 1000000000015-source-1000000000018-target
+      source: '1000000000015'
       sourceHandle: source
       target: '1000000000018'
       targetHandle: target
@@ -335,11 +335,77 @@ workflow:
     - data:
         isInLoop: false
         sourceType: http-request
-        targetType: end
-      id: 1000000000019-source-1000000000021-target
+        targetType: http-request
+      id: 1000000000019-source-1000000000017-target
       source: '1000000000019'
       sourceHandle: source
-      target: '1000000000021'
+      target: '1000000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1000000000020-source-1000000000017-target
+      source: '1000000000020'
+      sourceHandle: source
+      target: '1000000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000017-source-4000000000001-target
+      source: '1000000000017'
+      sourceHandle: source
+      target: '4000000000001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 4000000000001-source-4000000000002-target
+      source: '4000000000001'
+      sourceHandle: source
+      target: '4000000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 4000000000002-source-4000000000003-target
+      source: '4000000000002'
+      sourceHandle: source
+      target: '4000000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 4000000000003-source-4000000000004-target
+      source: '4000000000003'
+      sourceHandle: source
+      target: '4000000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 4000000000004-source-4000000000006-target
+      source: '4000000000004'
+      sourceHandle: source
+      target: '4000000000006'
       targetHandle: target
       type: custom
       zIndex: 0
@@ -347,8 +413,8 @@ workflow:
         isInLoop: false
         sourceType: http-request
         targetType: end
-      id: 1000000000020-source-1000000000021-target
-      source: '1000000000020'
+      id: 4000000000006-source-1000000000021-target
+      source: '4000000000006'
       sourceHandle: source
       target: '1000000000021'
       targetHandle: target
@@ -1948,10 +2014,10 @@ workflow:
       height: 125
       id: '1000000000017'
       position:
-        x: 4710
+        x: 5776
         y: 141
       positionAbsolute:
-        x: 4710
+        x: 5776
         y: 141
       selected: false
       sourcePosition: right
@@ -2011,11 +2077,11 @@ workflow:
       height: 51
       id: '1000000000018'
       position:
-        x: 5052
-        y: 178
+        x: 4368
+        y: 350
       positionAbsolute:
-        x: 5052
-        y: 178
+        x: 4368
+        y: 350
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2058,11 +2124,11 @@ workflow:
       height: 141
       id: '1000000000019'
       position:
-        x: 5414
-        y: 124
+        x: 4730
+        y: 280
       positionAbsolute:
-        x: 5414
-        y: 124
+        x: 4730
+        y: 280
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2105,11 +2171,11 @@ workflow:
       height: 141
       id: '1000000000020'
       position:
-        x: 5414
-        y: 345
+        x: 4730
+        y: 460
       positionAbsolute:
-        x: 5414
-        y: 345
+        x: 4730
+        y: 460
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2127,10 +2193,10 @@ workflow:
       height: 88
       id: '1000000000021'
       position:
-        x: 5776
+        x: 8210
         y: 166
       positionAbsolute:
-        x: 5776
+        x: 8210
         y: 166
       selected: false
       sourcePosition: right
@@ -3489,6 +3555,236 @@ workflow:
       positionAbsolute:
         x: 2276
         y: 1530
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nfrom datetime import datetime\n\ndef main(\n    filtered_findings: str,\n    diff_summary: str,\n    date_range: str,\n    today_iso: str,\n    slack_status: int,\n    delivery_status: int,\n    hash_status: int\n) -> dict:\n    # 各フェーズの成否判定\n    slack_ok = 200 <= slack_status < 300\n    delivery_ok = 200 <= delivery_status < 300\n    hash_ok = 200 <= hash_status < 300\n    \n    # 全体ステータス\n    if slack_ok and delivery_ok and hash_ok:\n        status = \"completed\"\n    elif slack_ok or delivery_ok:\n        status = \"partial_failure\"\n    else:\n        status = \"failed\"\n    \n    # 記事数の集計\n    total_after_filter = 0\n    try:\n        findings = json.loads(filtered_findings)\n        total_after_filter = len(findings)\n    except:\n        pass\n    \n    log_record = {\n        \"execution_date\": datetime.now().isoformat(),\n        \"status\": status,\n        \"slack_delivery_status\": {\"status_code\": slack_status, \"success\": slack_ok},\n        \"db_save_status\": {\n            \"delivery_save\": {\"status_code\": delivery_status, \"success\": delivery_ok},\n            \"hash_save\": {\"status_code\": hash_status, \"success\": hash_ok}\n        },\n        \"total_articles_after_filter\": total_after_filter,\n        \"date_range\": date_range,\n        \"error_details\": []\n    }\n    \n    if not slack_ok:\n        log_record[\"error_details\"].append({\"node\": \"Slack送信\", \"status_code\": slack_status})\n    if not delivery_ok:\n        log_record[\"error_details\"].append({\"node\": \"配信履歴保存\", \"status_code\": delivery_status})\n    if not hash_ok:\n        log_record[\"error_details\"].append({\"node\": \"記事ハッシュ保存\", \"status_code\": hash_status})\n    \n    return {\"execution_log_json\": json.dumps(log_record, ensure_ascii=False)}"
+        code_language: python3
+        outputs:
+          execution_log_json:
+            children: null
+            type: string
+        selected: false
+        title: 実行ログ記録準備
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000014'
+          - filtered_findings
+          value_type: string
+          variable: filtered_findings
+        - value_selector:
+          - '1000000000014'
+          - diff_summary
+          value_type: string
+          variable: diff_summary
+        - value_selector:
+          - '1000000000002'
+          - date_range
+          value_type: string
+          variable: date_range
+        - value_selector:
+          - '1000000000002'
+          - today_iso
+          value_type: string
+          variable: today_iso
+        - value_selector:
+          - '1000000000017'
+          - status_code
+          value_type: number
+          variable: slack_status
+        - value_selector:
+          - '1000000000019'
+          - status_code
+          value_type: number
+          variable: delivery_status
+        - value_selector:
+          - '1000000000020'
+          - status_code
+          value_type: number
+          variable: hash_status
+      height: 51
+      id: '4000000000001'
+      position:
+        x: 6138
+        y: 178
+      positionAbsolute:
+        x: 6138
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-log-001
+            key: ''
+            type: text
+            value: '{{#4000000000001.execution_log_json#}}'
+          type: raw-text
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json
+
+          Prefer:return=minimal'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: 実行ログ保存
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/execution_log'
+        variables: []
+      height: 141
+      id: '4000000000002'
+      position:
+        x: 6480
+        y: 141
+      positionAbsolute:
+        x: 6480
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - type: text
+            value: ''
+          type: none
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: 連続失敗チェック
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/execution_log?select=status&order=execution_date.desc&limit=3'
+        variables: []
+      height: 141
+      id: '4000000000003'
+      position:
+        x: 6822
+        y: 141
+      positionAbsolute:
+        x: 6822
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(recent_logs: str, current_status: str) -> dict:\n    needs_escalation = False\n    consecutive_failures = 0\n    \n    try:\n        logs = json.loads(recent_logs)\n        if isinstance(logs, list):\n            for log in logs:\n                if log.get(\"status\") in (\"failed\", \"partial_failure\"):\n                    consecutive_failures += 1\n                else:\n                    break\n    except:\n        pass\n    \n    if consecutive_failures >= 3:\n        needs_escalation = True\n    \n    escalation_payload = \"\"\n    if needs_escalation:\n        escalation_payload = json.dumps({\n            \"text\": f\"\\U0001f6a8 AI News ワークフロー緊急通知: {consecutive_failures}回連続で障害が発生しています。確認してください。\",\n            \"blocks\": [\n                {\"type\": \"header\", \"text\": {\"type\": \"plain_text\", \"text\": \"\\U0001f6a8 連続障害アラート\", \"emoji\": True}},\n                {\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": f\"*{consecutive_failures}回連続*で実行に問題が発生しています。\\n\\n*直近ステータス:*\\n\" + \"\\n\".join([f\"\\u2022 {log.get('status', 'unknown')}\" for log in (json.loads(recent_logs) if recent_logs else [])])}}\n            ]\n        }, ensure_ascii=False)\n    \n    return {\n        \"needs_escalation\": \"true\" if needs_escalation else \"false\",\n        \"consecutive_failures\": str(consecutive_failures),\n        \"escalation_payload\": escalation_payload\n    }"
+        code_language: python3
+        outputs:
+          needs_escalation:
+            children: null
+            type: string
+          consecutive_failures:
+            children: null
+            type: string
+          escalation_payload:
+            children: null
+            type: string
+        selected: false
+        title: 失敗判定
+        type: code
+        variables:
+        - value_selector:
+          - '4000000000003'
+          - body
+          value_type: string
+          variable: recent_logs
+        - value_selector:
+          - '4000000000001'
+          - execution_log_json
+          value_type: string
+          variable: current_status
+      height: 51
+      id: '4000000000004'
+      position:
+        x: 7164
+        y: 178
+      positionAbsolute:
+        x: 7164
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-escalation-001
+            key: ''
+            type: text
+            value: '{{#4000000000004.escalation_payload#}}'
+          type: raw-text
+        headers: Content-Type:application/json
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 0
+          retry_enabled: false
+          retry_interval: 0
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: エスカレーション通知
+        type: http-request
+        url: '{{#env.SLACK_WEBHOOK_URL#}}'
+        variables: []
+      height: 125
+      id: '4000000000006'
+      position:
+        x: 7506
+        y: 141
+      positionAbsolute:
+        x: 7506
+        y: 141
       selected: false
       sourcePosition: right
       targetPosition: left

@@ -1,10 +1,10 @@
 app:
-  description: v8.0 テックインテリジェンスワークフロー - 一次情報（RSS/arXiv/GitHub Releases）直接取得+Tavily検索（一次情報限定含む）によるAI/ITニュースの自動収集・分析・Slack配信
+  description: v10.0 IT技術全般テックインテリジェンスワークフロー - スケジュール自動実行・一次情報中心・10カテゴリ網羅・Slack配信
   icon: 🤖
   icon_background: '#FFEAD5'
   icon_type: emoji
   mode: workflow
-  name: AInews_TechIntelligence_v8
+  name: AInews_TechIntelligence_v10
   use_icon_as_answer_icon: false
 dependencies:
 - current_identifier: null
@@ -97,7 +97,7 @@ workflow:
     edges:
     - data:
         isInLoop: false
-        sourceType: start
+        sourceType: trigger-schedule
         targetType: code
       id: 1000000000001-source-1000000000002-target
       source: '1000000000001'
@@ -301,10 +301,10 @@ workflow:
       zIndex: 0
     - data:
         isInLoop: false
-        sourceType: http-request
+        sourceType: llm
         targetType: code
-      id: 1000000000017-source-1000000000018-target
-      source: '1000000000017'
+      id: 1000000000015-source-1000000000018-target
+      source: '1000000000015'
       sourceHandle: source
       target: '1000000000018'
       targetHandle: target
@@ -335,11 +335,77 @@ workflow:
     - data:
         isInLoop: false
         sourceType: http-request
-        targetType: end
-      id: 1000000000019-source-1000000000021-target
+        targetType: http-request
+      id: 1000000000019-source-1000000000017-target
       source: '1000000000019'
       sourceHandle: source
-      target: '1000000000021'
+      target: '1000000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1000000000020-source-1000000000017-target
+      source: '1000000000020'
+      sourceHandle: source
+      target: '1000000000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1000000000017-source-4000000000001-target
+      source: '1000000000017'
+      sourceHandle: source
+      target: '4000000000001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 4000000000001-source-4000000000002-target
+      source: '4000000000001'
+      sourceHandle: source
+      target: '4000000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 4000000000002-source-4000000000003-target
+      source: '4000000000002'
+      sourceHandle: source
+      target: '4000000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 4000000000003-source-4000000000004-target
+      source: '4000000000003'
+      sourceHandle: source
+      target: '4000000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 4000000000004-source-4000000000006-target
+      source: '4000000000004'
+      sourceHandle: source
+      target: '4000000000006'
       targetHandle: target
       type: custom
       zIndex: 0
@@ -347,8 +413,8 @@ workflow:
         isInLoop: false
         sourceType: http-request
         targetType: end
-      id: 1000000000020-source-1000000000021-target
-      source: '1000000000020'
+      id: 4000000000006-source-1000000000021-target
+      source: '4000000000006'
       sourceHandle: source
       target: '1000000000021'
       targetHandle: target
@@ -660,19 +726,21 @@ workflow:
       zIndex: 0
     nodes:
     - data:
+        type: trigger-schedule
+        title: スケジュール実行（月水金 7:00）
+        mode: visual
+        frequency: weekly
+        visual_config:
+          time: '7:00 AM'
+          weekdays:
+            - mon
+            - wed
+            - fri
+          on_minute: 0
+          monthly_days:
+            - 1
+        timezone: Asia/Tokyo
         selected: false
-        title: ユーザー入力
-        type: start
-        variables:
-        - default: AI
-          hint: ''
-          label: トピック
-          max_length: 48
-          options: []
-          placeholder: ''
-          required: false
-          type: text-input
-          variable: topic
       height: 108
       id: '1000000000001'
       position:
@@ -687,8 +755,7 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "from datetime import datetime, timedelta\nimport json\n\ndef main(topic: str) -> dict:\n    today = datetime.now()\n    # 月水金配信: 前回配信からの差分期間を計算\n    weekday = today.weekday()  # 0=月, 2=水, 4=金\n    if weekday == 0:  # 月曜: 金→月の3日分\n        days_back = 3\n    elif weekday == 2:  # 水曜: 月→水の2日分\n        days_back = 2\n    elif weekday == 4:  # 金曜: 水→金の2日分\n        days_back = 2\n    else:\n        days_back = 1\n\n    start_date = today - timedelta(days=days_back)\n    date_range = f\"{start_date.strftime('%Y年%m月%d日')}〜{today.strftime('%Y年%m月%d日')}\"\n    query_suffix = f\"after:{start_date.strftime('%Y-%m-%d')}\"\n\n    # 固定5カテゴリ定義\n    fixed_categories = json.dumps([\n        {\"id\": \"llm\", \"name\": \"LLM/基盤モデル\", \"query_template\": f'(\"{topic} LLM release\" OR \"{topic} foundation model\") {query_suffix}'},\n        {\"id\": \"devtools\", \"name\": \"開発ツール/フレームワーク\", \"query_template\": f'(\"{topic} developer tools\" OR \"{topic} SDK framework\") {query_suffix}'},\n  \
-          \      {\"id\": \"business\", \"name\": \"ビジネス/企業動向\", \"query_template\": f'(\"{topic} business acquisition funding\" OR \"{topic} enterprise\") {query_suffix}'},\n        {\"id\": \"regulation\", \"name\": \"規制/安全性\", \"query_template\": f'(\"{topic} regulation policy safety\" OR \"{topic} AI ethics governance\") {query_suffix}'},\n        {\"id\": \"research\", \"name\": \"研究/技術革新\", \"query_template\": f'(\"{topic} research breakthrough\" OR \"{topic} new technique paper\") {query_suffix}'}\n    ], ensure_ascii=False)\n\n    return {\n        \"date_range\": date_range,\n        \"query_suffix\": query_suffix,\n        \"start_date_iso\": start_date.strftime('%Y-%m-%d'),\n        \"today_iso\": today.strftime('%Y-%m-%d'),\n        \"fixed_categories\": fixed_categories\n    }"
+        code: "from datetime import datetime, timedelta\nimport json\n\ndef main() -> dict:\n    today = datetime.now()\n    weekday = today.weekday()\n    if weekday == 0:\n        days_back = 3\n    elif weekday == 2:\n        days_back = 2\n    elif weekday == 4:\n        days_back = 2\n    else:\n        days_back = 1\n\n    start_date = today - timedelta(days=days_back)\n    date_range = f\"{start_date.strftime('%Y年%m月%d日')}〜{today.strftime('%Y年%m月%d日')}\"\n    query_suffix = f\"after:{start_date.strftime('%Y-%m-%d')}\"\n\n    fixed_categories = json.dumps([\n        {\"id\": \"ai_ml\", \"name\": \"AI/ML/LLM\", \"query_template\": f'(\"LLM release\" OR \"foundation model\" OR \"generative AI\" OR \"MLOps\") {query_suffix}'},\n        {\"id\": \"frontend\", \"name\": \"フロントエンド/UI\", \"query_template\": f'(\"frontend framework\" OR \"React\" OR \"Vue\" OR \"Svelte\" OR \"Next.js\" OR \"CSS\" OR \"WebAssembly\") {query_suffix}'},\n        {\"id\": \"backend\", \"name\": \"バックエンド/API\", \"query_template\": f'(\"backend framework\" OR \"API design\" OR \"microservices\" OR \"GraphQL\" OR \"gRPC\") {query_suffix}'},\n        {\"id\": \"infra_devops\", \"name\": \"インフラ/クラウド/DevOps\", \"query_template\": f'(\"Kubernetes\" OR \"Terraform\" OR \"CI/CD\" OR \"cloud native\" OR \"serverless\" OR \"container\") {query_suffix}'},\n        {\"id\": \"security\", \"name\": \"セキュリティ\", \"query_template\": f'(\"CVE\" OR \"zero-day\" OR \"vulnerability\" OR \"cybersecurity\" OR \"supply chain security\" OR \"OWASP\") {query_suffix}'},\n        {\"id\": \"data\", \"name\": \"データベース/データエンジニアリング\", \"query_template\": f'(\"database release\" OR \"PostgreSQL\" OR \"data pipeline\" OR \"vector database\" OR \"Redis\" OR \"data lake\") {query_suffix}'},\n        {\"id\": \"mobile\", \"name\": \"モバイル/クロスプラットフォーム\", \"query_template\": f'(\"iOS release\" OR \"Android update\" OR \"Flutter\" OR \"React Native\" OR \"Kotlin Multiplatform\") {query_suffix}'},\n        {\"id\": \"languages\", \"name\": \"プログラミング言語/ランタイム\", \"query_template\": f'(\"programming language release\" OR \"Rust release\" OR \"Go release\" OR \"Python update\" OR \"TypeScript\" OR \"Bun\" OR \"Deno\") {query_suffix}'},\n        {\"id\": \"standards\", \"name\": \"Web標準/プロトコル/OSS動向\", \"query_template\": f'(\"web standard\" OR \"W3C\" OR \"TC39\" OR \"HTTP/3\" OR \"CNCF\" OR \"open source\") {query_suffix}'},\n        {\"id\": \"business\", \"name\": \"IT業界動向/規制\", \"query_template\": f'(\"tech acquisition\" OR \"startup funding\" OR \"tech regulation\" OR \"open source policy\" OR \"AI governance\") {query_suffix}'}\n    ], ensure_ascii=False)\n\n    return {\n        \"date_range\": date_range,\n        \"query_suffix\": query_suffix,\n        \"start_date_iso\": start_date.strftime('%Y-%m-%d'),\n        \"today_iso\": today.strftime('%Y-%m-%d'),\n        \"fixed_categories\": fixed_categories\n    }"
         code_language: python3
         outputs:
           date_range:
@@ -709,12 +776,7 @@ workflow:
         selected: false
         title: 初期化・日付計算
         type: code
-        variables:
-        - value_selector:
-          - '1000000000001'
-          - topic
-          value_type: string
-          variable: topic
+        variables: []
       height: 51
       id: '1000000000002'
       position:
@@ -920,60 +982,7 @@ workflow:
           text: ''
         - id: a1b2c3d4-2222-4000-8000-000000000007
           role: user
-          text: 'あなたはAI/ITニュースの調査デスクです。
-
-
-            トピック「{{#1000000000001.topic#}}」について、以下の情報を元に検索クエリを生成してください。
-
-
-            ## 対象期間
-
-            {{#1000000000002.date_range#}}
-
-
-            ## 固定カテゴリ（5枠）
-
-            1. LLM/基盤モデル
-
-            2. 開発ツール/フレームワーク
-
-            3. ビジネス/企業動向
-
-            4. 規制/安全性
-
-            5. 研究/技術革新
-
-
-            ## ウォッチリスト（継続追跡中の技術）
-
-            {{#1000000000006.watch_keywords#}}
-
-
-            ## 要件
-
-            - 固定5カテゴリそれぞれに最適な検索クエリを1つずつ生成
-
-            - ウォッチリストの技術名を含むクエリを1つ追加
-
-            - 変動スポット枠用（急浮上テーマ探索）のクエリを1つ追加
-
-            - 探索枠用（新興技術発掘）のクエリを1つ追加
-
-            - 合計8クエリ
-
-
-            ## クエリ作成ルール
-
-            - 複合キーワードをORで組み合わせる
-
-            - 期間指定: {{#1000000000002.query_suffix#}}
-
-            - 英語と日本語を混ぜて網羅性を確保
-
-
-            ## 出力形式（JSONリストのみ出力）
-
-            ["クエリ1", "クエリ2", ..., "クエリ8"]'
+          text: "あなたはIT技術全般のニュース調査デスクです。\n\n以下の10カテゴリについて、開発者が最新の技術動向を網羅的に追えるよう検索クエリを生成してください。\n\n## 対象期間\n{{#1000000000002.date_range#}}\n\n## 固定カテゴリ（10枠）\n1. AI/ML/LLM\n2. フロントエンド/UI\n3. バックエンド/API\n4. インフラ/クラウド/DevOps\n5. セキュリティ\n6. データベース/データエンジニアリング\n7. モバイル/クロスプラットフォーム\n8. プログラミング言語/ランタイム\n9. Web標準/プロトコル/OSS動向\n10. IT業界動向/規制\n\n## ウォッチリスト（継続追跡中の技術）\n{{#1000000000006.watch_keywords#}}\n\n## 要件\n- 固定10カテゴリそれぞれに最適な検索クエリを1つずつ生成\n- ウォッチリストの技術名を含むクエリを1つ追加\n- 変動スポット枠用（急浮上テーマ探索）のクエリを1つ追加\n- 合計12クエリ\n\n## クエリ作成ルール\n- 各カテゴリ固有の技術キーワードを使い、カテゴリ間の重複を避ける\n- 複合キーワードをORで組み合わせる\n- 期間指定: {{#1000000000002.query_suffix#}}\n- 英語と日本語を混ぜて網羅性を確保\n\n## 出力形式（JSONリストのみ出力）\n[\"クエリ1\", \"クエリ2\", ..., \"クエリ12\"]"
         selected: false
         title: 検索戦略立案
         type: llm
@@ -1101,20 +1110,7 @@ workflow:
           text: ''
         - id: a1b2c3d4-2222-4000-8000-000000000010
           role: user
-          text: 'トピック: {{#1000000000001.topic#}}
-
-            クエリ: {{#1000000000009.item#}}
-
-            期間: {{#1000000000002.query_suffix#}}
-
-
-            上記のクエリを検索エンジン向けに最適化してください。情報の取りこぼしを防ぐため、詳細・特化・広範囲の3層キーワードをORで繋いでください。
-
-
-            形式: ("詳細" OR "特化" OR "広範囲") after:YYYY-MM-DD
-
-
-            最適化されたクエリのみを出力してください。'
+          text: "クエリ: {{#1000000000009.item#}}\n期間: {{#1000000000002.query_suffix#}}\n\n上記のクエリを検索エンジン向けに最適化してください。IT技術全般を対象とし、情報の取りこぼしを防ぐため、詳細・特化・広範囲の3層キーワードをORで繋いでください。\n\n形式: (\"詳細\" OR \"特化\" OR \"広範囲\") after:YYYY-MM-DD\n\n最適化されたクエリのみを出力してください。"
         selected: false
         title: クエリ最適化
         type: llm
@@ -1850,7 +1846,7 @@ workflow:
           text: ''
         - id: a1b2c3d4-2222-4000-8000-000000000015
           role: user
-          text: "あなたはAI/IT技術のインテリジェンスアナリストです。\n以下の検索結果を分析し、開発者向けテックインテリジェンスレポートを作成してください。\n\n## 対象期間\n{{#1000000000002.date_range#}}\n\n## 検索結果（信頼度フィルタ・重複統合済み）\n{{#1000000000014.filtered_findings#}}\n\n## 差分サマリー\n{{#1000000000014.diff_summary#}}\n\n## ウォッチリスト（継続追跡中の技術）\n{{#1000000000006.watchlist_json#}}\n\n## 前回のキーワード\n{{#1000000000006.prev_keywords_json#}}\n\n## 出力ルール\n\n### 1. 変化ハイライト（3行以内）\n前回から最も重要な変化を3行でまとめる。差分ステータス([NEW]または[UPDATE])を必ず付与。\n\n### 2. 定点観測（固定5カテゴリ）\n各カテゴリに2-4件。各ニュースは以下の3点固定フォーマット:\n[差分] タイトル（日付）\n  何が起きた: 事実1行。日付・固有名詞・数値を必ず含む\n  誰に効く: 以下から1-3個選択 → BE(バックエンド), FE(フロントエンド), ML(MLエンジニア), Infra(DevOps/SRE), PM(プロダクトマネージャー), CTO(技術選定者)\n  試すべきこと: 具体的アクション1行。可能ならURLを含む\n\nカテゴリ:\n1. LLM/基盤モデル\n2. 開発ツール/フレームワーク\n3. ビジネス/企業動向\n4. 規制/安全性\n5. 研究/技術革新\n\n### 3. 今週のスポットライト（変動1枠）\n今回の検索結果で最も密度の高い新テーマを1つ検出し、詳しく解説。\n固定5カテゴリに収まらない急浮上テーマを選ぶこと。\n\n### 4. ウォッチリスト進捗\nウォッチリストの各技術について、今回の検索結果に関連情報があれば報告。\n形式: [技術名] (N週目) ↗️上昇/→安定/↘️下降\n  進展: 前回からの変化を1-2行で\n\n### 5. 今週の発掘（探索枠1件）\nまだ主流メディアで取り上げられていないが、伸びそうな技術を1件選出。\n\
+          text: "あなたはIT技術全般のインテリジェンスアナリストです。\n以下の検索結果を分析し、開発者向けテックインテリジェンスレポートを作成してください。\n\n## 対象期間\n{{#1000000000002.date_range#}}\n\n## 検索結果（信頼度フィルタ・重複統合済み）\n{{#1000000000014.filtered_findings#}}\n\n## 差分サマリー\n{{#1000000000014.diff_summary#}}\n\n## ウォッチリスト（継続追跡中の技術）\n{{#1000000000006.watchlist_json#}}\n\n## 前回のキーワード\n{{#1000000000006.prev_keywords_json#}}\n\n## 出力ルール\n\n### 1. 変化ハイライト（3行以内）\n前回から最も重要な変化を3行でまとめる。差分ステータス([NEW]または[UPDATE])を必ず付与。\n\n### 2. 定点観測（固定10カテゴリ）\n各カテゴリに2-4件。各ニュースは以下の3点固定フォーマット:\n[差分] タイトル（日付）\n  何が起きた: 事実1行。日付・固有名詞・数値を必ず含む\n  誰に効く: 以下から1-3個選択 → BE(バックエンド), FE(フロントエンド), ML(MLエンジニア), Infra(DevOps/SRE), PM(プロダクトマネージャー), CTO(技術選定者)\n  試すべきこと: 具体的アクション1行。可能ならURLを含む\n\nカテゴリ:\n1. AI/ML/LLM\n2. フロントエンド/UI\n3. バックエンド/API\n4. インフラ/クラウド/DevOps\n5. セキュリティ\n6. データベース/データエンジニアリング\n7. モバイル/クロスプラットフォーム\n8. プログラミング言語/ランタイム\n9. Web標準/プロトコル/OSS動向\n10. IT業界動向/規制\n\n### 3. 今週のスポットライト（変動1枠）\n今回の検索結果で最も密度の高い新テーマを1つ検出し、詳しく解説。\n固定10カテゴリに収まらない急浮上テーマを選ぶこと。\n\n### 4. ウォッチリスト進捗\nウォッチリストの各技術について、今回の検索結果に関連情報があれば報告。\n形式: [技術名] (N週目) ↗️上昇/→安定/↘️下降\n  進展: 前回からの変化を1-2行で\n\n### 5. 今週の発掘（探索枠1件）\nまだ主流メディアで取り上げられていないが、伸びそうな技術を1件選出。\n\
             選出基準: 検索結果に出てきたがマイナーなもの、またはGitHub stars急伸のプロジェクト。\n\n### 出力フォーマット（Slack mrkdwn記法）\n- 太字は *テキスト* （アスタリスク1つ）\n- リンクは <URL|テキスト>\n- 箇条書しは • （ビュレット）\n- セクション区切りは ━━━\n- 差分ラベル: \U0001F195[NEW], \U0001F504[UPDATE], \U0001F4CD[WATCH]\n\n### 制約\n- 全体を5000文字以内に収める\n- 期間外のニュースは除外\n- 憶測・未確認情報には ⚠️ を付与\n- 「何を試すべきか」は必ず具体的に（「検討する」のような曖昧な表現は禁止）"
         selected: false
         title: カテゴリ分類+実務インパクト分析
@@ -1948,10 +1944,10 @@ workflow:
       height: 125
       id: '1000000000017'
       position:
-        x: 4710
+        x: 5776
         y: 141
       positionAbsolute:
-        x: 4710
+        x: 5776
         y: 141
       selected: false
       sourcePosition: right
@@ -2011,11 +2007,11 @@ workflow:
       height: 51
       id: '1000000000018'
       position:
-        x: 5052
-        y: 178
+        x: 4368
+        y: 350
       positionAbsolute:
-        x: 5052
-        y: 178
+        x: 4368
+        y: 350
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2058,11 +2054,11 @@ workflow:
       height: 141
       id: '1000000000019'
       position:
-        x: 5414
-        y: 124
+        x: 4730
+        y: 280
       positionAbsolute:
-        x: 5414
-        y: 124
+        x: 4730
+        y: 280
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2105,11 +2101,11 @@ workflow:
       height: 141
       id: '1000000000020'
       position:
-        x: 5414
-        y: 345
+        x: 4730
+        y: 460
       positionAbsolute:
-        x: 5414
-        y: 345
+        x: 4730
+        y: 460
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -2127,10 +2123,10 @@ workflow:
       height: 88
       id: '1000000000021'
       position:
-        x: 5776
+        x: 8210
         y: 166
       positionAbsolute:
-        x: 5776
+        x: 8210
         y: 166
       selected: false
       sourcePosition: right
@@ -2138,8 +2134,7 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\n\ndef main() -> dict:\n    rss_sources = [\n        {\"name\": \"OpenAI Blog\", \"url\": \"https://openai.com/blog/rss.xml\", \"category\": \"LLM\"},\n        {\"name\": \"Anthropic\", \"url\": \"https://www.anthropic.com/rss.xml\", \"category\": \"LLM\"},\n        {\"name\": \"Google AI Blog\", \"url\": \"https://blog.google/technology/ai/rss\", \"category\": \"LLM\"},\n        {\"name\": \"Meta AI\", \"url\": \"https://ai.meta.com/blog/feed.xml\", \"category\": \"LLM\"},\n        {\"name\": \"Hugging Face\", \"url\": \"https://huggingface.co/blog/feed.xml\", \"category\": \"DevTools\"},\n        {\"name\": \"AWS Blog\", \"url\": \"https://aws.amazon.com/blogs/aws/feed\", \"category\": \"Cloud\"},\n        {\"name\": \"Google Cloud\", \"url\": \"https://cloud.google.com/feeds/gcp-news.xml\", \"category\": \"Cloud\"},\n        {\"name\": \"GitHub Changelog\", \"url\": \"https://github.blog/changelog/feed\", \"category\": \"DevTools\"},\n        {\"name\": \"LangChain\"\
-          , \"url\": \"https://blog.langchain.dev/rss\", \"category\": \"DevTools\"},\n        {\"name\": \"Cloudflare\", \"url\": \"https://blog.cloudflare.com/rss\", \"category\": \"Infra\"}\n    ]\n    return {\n        \"rss_sources\": json.dumps(rss_sources, ensure_ascii=False)\n    }"
+        code: "import json\n\ndef main() -> dict:\n    rss_sources = json.dumps([\n        {\"name\": \"OpenAI Blog\", \"url\": \"https://openai.com/blog/rss.xml\", \"category\": \"AI/ML\"},\n        {\"name\": \"Anthropic\", \"url\": \"https://www.anthropic.com/rss.xml\", \"category\": \"AI/ML\"},\n        {\"name\": \"Google AI Blog\", \"url\": \"https://blog.google/technology/ai/rss\", \"category\": \"AI/ML\"},\n        {\"name\": \"Meta AI\", \"url\": \"https://ai.meta.com/blog/feed.xml\", \"category\": \"AI/ML\"},\n        {\"name\": \"Hugging Face\", \"url\": \"https://huggingface.co/blog/feed.xml\", \"category\": \"AI/ML\"},\n        {\"name\": \"AWS Blog\", \"url\": \"https://aws.amazon.com/blogs/aws/feed\", \"category\": \"Cloud\"},\n        {\"name\": \"Google Cloud\", \"url\": \"https://cloud.google.com/feeds/gcp-news.xml\", \"category\": \"Cloud\"},\n        {\"name\": \"Azure Blog\", \"url\": \"https://azure.microsoft.com/en-us/blog/feed/\", \"category\": \"Cloud\"},\n        {\"name\": \"GitHub Changelog\", \"url\": \"https://github.blog/changelog/feed\", \"category\": \"DevTools\"},\n        {\"name\": \"LangChain\", \"url\": \"https://blog.langchain.dev/rss\", \"category\": \"AI/ML\"},\n        {\"name\": \"Cloudflare\", \"url\": \"https://blog.cloudflare.com/rss\", \"category\": \"Infra\"},\n        {\"name\": \"Vercel Blog\", \"url\": \"https://vercel.com/atom\", \"category\": \"Frontend\"},\n        {\"name\": \"Next.js Blog\", \"url\": \"https://nextjs.org/feed.xml\", \"category\": \"Frontend\"},\n        {\"name\": \"Vue.js Blog\", \"url\": \"https://blog.vuejs.org/feed.rss\", \"category\": \"Frontend\"},\n        {\"name\": \"Kubernetes Blog\", \"url\": \"https://kubernetes.io/feed.xml\", \"category\": \"Infra\"},\n        {\"name\": \"Docker Blog\", \"url\": \"https://www.docker.com/blog/feed/\", \"category\": \"Infra\"},\n        {\"name\": \"Rust Blog\", \"url\": \"https://blog.rust-lang.org/feed.xml\", \"category\": \"Languages\"},\n        {\"name\": \"Go Blog\", \"url\": \"https://go.dev/blog/feed.atom\", \"category\": \"Languages\"},\n        {\"name\": \"PostgreSQL News\", \"url\": \"https://www.postgresql.org/news.rss\", \"category\": \"Data\"},\n        {\"name\": \"Supabase Blog\", \"url\": \"https://supabase.com/rss.xml\", \"category\": \"Data\"},\n        {\"name\": \"Android Developers\", \"url\": \"https://android-developers.googleblog.com/atom.xml\", \"category\": \"Mobile\"},\n        {\"name\": \"Chrome Developers\", \"url\": \"https://developer.chrome.com/blog/feed.xml\", \"category\": \"Standards\"}\n    ], ensure_ascii=False)\n    return {\"rss_sources\": rss_sources}"
         code_language: python3
         outputs:
           rss_sources:
@@ -2376,7 +2371,7 @@ workflow:
           max_write_timeout: 0
         title: arXiv API取得
         type: http-request
-        url: http://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending
+        url: http://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.SE+OR+cat:cs.CR+OR+cat:cs.DC+OR+cat:cs.PL&start=0&max_results=30&sortBy=submittedDate&sortOrder=descending
         variables: []
       height: 125
       id: '2000000000005'
@@ -2484,8 +2479,7 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\n\ndef main() -> dict:\n    repos = [\n        {\"owner\": \"langgenius\", \"repo\": \"dify\", \"category\": \"DevTool\"},\n        {\"owner\": \"ollama\", \"repo\": \"ollama\", \"category\": \"LLM\"},\n        {\"owner\": \"ggerganov\", \"repo\": \"llama.cpp\", \"category\": \"LLM\"},\n        {\"owner\": \"openai\", \"repo\": \"openai-python\", \"category\": \"LLM\"},\n        {\"owner\": \"langchain-ai\", \"repo\": \"langchain\", \"category\": \"DevTool\"},\n        {\"owner\": \"run-llama\", \"repo\": \"llama_index\", \"category\": \"DevTool\"},\n        {\"owner\": \"microsoft\", \"repo\": \"autogen\", \"category\": \"DevTool\"},\n        {\"owner\": \"huggingface\", \"repo\": \"transformers\", \"category\": \"LLM\"},\n        {\"owner\": \"vllm-project\", \"repo\": \"vllm\", \"category\": \"LLM\"},\n        {\"owner\": \"BerriAI\", \"repo\": \"litellm\", \"category\": \"DevTool\"},\n        {\"owner\": \"open-webui\", \"repo\": \"open-webui\", \"category\"\
-          : \"DevTool\"},\n        {\"owner\": \"comfyanonymous\", \"repo\": \"ComfyUI\", \"category\": \"DevTool\"}\n    ]\n    return {\"github_repos\": json.dumps(repos, ensure_ascii=False)}"
+        code: "import json\n\ndef main() -> dict:\n    repos = [\n        {\"owner\": \"langgenius\", \"repo\": \"dify\", \"category\": \"AI/ML\"},\n        {\"owner\": \"ollama\", \"repo\": \"ollama\", \"category\": \"AI/ML\"},\n        {\"owner\": \"ggerganov\", \"repo\": \"llama.cpp\", \"category\": \"AI/ML\"},\n        {\"owner\": \"openai\", \"repo\": \"openai-python\", \"category\": \"AI/ML\"},\n        {\"owner\": \"langchain-ai\", \"repo\": \"langchain\", \"category\": \"AI/ML\"},\n        {\"owner\": \"run-llama\", \"repo\": \"llama_index\", \"category\": \"AI/ML\"},\n        {\"owner\": \"microsoft\", \"repo\": \"autogen\", \"category\": \"AI/ML\"},\n        {\"owner\": \"huggingface\", \"repo\": \"transformers\", \"category\": \"AI/ML\"},\n        {\"owner\": \"vllm-project\", \"repo\": \"vllm\", \"category\": \"AI/ML\"},\n        {\"owner\": \"BerriAI\", \"repo\": \"litellm\", \"category\": \"AI/ML\"},\n        {\"owner\": \"open-webui\", \"repo\": \"open-webui\", \"category\": \"AI/ML\"},\n        {\"owner\": \"comfyanonymous\", \"repo\": \"ComfyUI\", \"category\": \"AI/ML\"},\n        {\"owner\": \"vercel\", \"repo\": \"next.js\", \"category\": \"Frontend\"},\n        {\"owner\": \"sveltejs\", \"repo\": \"svelte\", \"category\": \"Frontend\"},\n        {\"owner\": \"tailwindlabs\", \"repo\": \"tailwindcss\", \"category\": \"Frontend\"},\n        {\"owner\": \"denoland\", \"repo\": \"deno\", \"category\": \"Languages\"},\n        {\"owner\": \"oven-sh\", \"repo\": \"bun\", \"category\": \"Languages\"},\n        {\"owner\": \"rust-lang\", \"repo\": \"rust\", \"category\": \"Languages\"},\n        {\"owner\": \"hashicorp\", \"repo\": \"terraform\", \"category\": \"Infra\"},\n        {\"owner\": \"kubernetes\", \"repo\": \"kubernetes\", \"category\": \"Infra\"},\n        {\"owner\": \"docker\", \"repo\": \"compose\", \"category\": \"Infra\"},\n        {\"owner\": \"grafana\", \"repo\": \"grafana\", \"category\": \"Infra\"},\n        {\"owner\": \"flutter\", \"repo\": \"flutter\", \"category\": \"Mobile\"},\n        {\"owner\": \"supabase\", \"repo\": \"supabase\", \"category\": \"Data\"}\n    ]\n    return {\"github_repos\": json.dumps(repos, ensure_ascii=False)}"
         code_language: python3
         outputs:
           github_repos:
@@ -2751,7 +2745,7 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import json\n\ndef main(query_suffix: str) -> dict:\n    queries = [\n        {\n            \"query\": f\"AI LLM model release announced {query_suffix}\",\n            \"include_domains\": \"openai.com,anthropic.com,ai.meta.com,mistral.ai,deepmind.google,huggingface.co\"\n        },\n        {\n            \"query\": f\"cloud AI service update launch {query_suffix}\",\n            \"include_domains\": \"aws.amazon.com,cloud.google.com,azure.microsoft.com,blog.cloudflare.com\"\n        },\n        {\n            \"query\": f\"developer tools framework SDK release {query_suffix}\",\n            \"include_domains\": \"github.blog,vercel.com,docker.com,nodejs.org,python.org\"\n        },\n        {\n            \"query\": f\"AI security vulnerability advisory {query_suffix}\",\n            \"include_domains\": \"cisa.gov,nvd.nist.gov,openssf.org,nist.gov\"\n        }\n    ]\n    return {\"primary_queries\": json.dumps(queries, ensure_ascii=False)}"
+        code: "import json\n\ndef main(query_suffix: str) -> dict:\n    queries = [\n        {\n            \"query\": f\"AI LLM model release announced {query_suffix}\",\n            \"include_domains\": \"openai.com,anthropic.com,ai.meta.com,mistral.ai,deepmind.google,huggingface.co\"\n        },\n        {\n            \"query\": f\"cloud infrastructure service update launch {query_suffix}\",\n            \"include_domains\": \"aws.amazon.com,cloud.google.com,azure.microsoft.com,blog.cloudflare.com\"\n        },\n        {\n            \"query\": f\"developer tools framework SDK release {query_suffix}\",\n            \"include_domains\": \"github.blog,vercel.com,docker.com,nodejs.org,python.org\"\n        },\n        {\n            \"query\": f\"security vulnerability CVE advisory {query_suffix}\",\n            \"include_domains\": \"cisa.gov,nvd.nist.gov,openssf.org,nist.gov,owasp.org\"\n        },\n        {\n            \"query\": f\"frontend framework release update React Vue Svelte {query_suffix}\",\n            \"include_domains\": \"nextjs.org,svelte.dev,developer.chrome.com,hacks.mozilla.org\"\n        },\n        {\n            \"query\": f\"Kubernetes container DevOps release update {query_suffix}\",\n            \"include_domains\": \"kubernetes.io,docker.com,hashicorp.com,grafana.com\"\n        },\n        {\n            \"query\": f\"programming language release Rust Go Python TypeScript {query_suffix}\",\n            \"include_domains\": \"blog.rust-lang.org,go.dev,python.org,devblogs.microsoft.com\"\n        },\n        {\n            \"query\": f\"mobile development iOS Android Flutter release {query_suffix}\",\n            \"include_domains\": \"developer.apple.com,android-developers.googleblog.com,reactnative.dev\"\n        }\n    ]\n    return {\"primary_queries\": json.dumps(queries, ensure_ascii=False)}"
         code_language: python3
         outputs:
           primary_queries:
@@ -3489,6 +3483,236 @@ workflow:
       positionAbsolute:
         x: 2276
         y: 1530
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nfrom datetime import datetime\n\ndef main(\n    filtered_findings: str,\n    diff_summary: str,\n    date_range: str,\n    today_iso: str,\n    slack_status: int,\n    delivery_status: int,\n    hash_status: int\n) -> dict:\n    # 各フェーズの成否判定\n    slack_ok = 200 <= slack_status < 300\n    delivery_ok = 200 <= delivery_status < 300\n    hash_ok = 200 <= hash_status < 300\n    \n    # 全体ステータス\n    if slack_ok and delivery_ok and hash_ok:\n        status = \"completed\"\n    elif slack_ok or delivery_ok:\n        status = \"partial_failure\"\n    else:\n        status = \"failed\"\n    \n    # 記事数の集計\n    total_after_filter = 0\n    try:\n        findings = json.loads(filtered_findings)\n        total_after_filter = len(findings)\n    except:\n        pass\n    \n    log_record = {\n        \"execution_date\": datetime.now().isoformat(),\n        \"status\": status,\n        \"slack_delivery_status\": {\"status_code\": slack_status, \"success\": slack_ok},\n        \"db_save_status\": {\n            \"delivery_save\": {\"status_code\": delivery_status, \"success\": delivery_ok},\n            \"hash_save\": {\"status_code\": hash_status, \"success\": hash_ok}\n        },\n        \"total_articles_after_filter\": total_after_filter,\n        \"date_range\": date_range,\n        \"error_details\": []\n    }\n    \n    if not slack_ok:\n        log_record[\"error_details\"].append({\"node\": \"Slack送信\", \"status_code\": slack_status})\n    if not delivery_ok:\n        log_record[\"error_details\"].append({\"node\": \"配信履歴保存\", \"status_code\": delivery_status})\n    if not hash_ok:\n        log_record[\"error_details\"].append({\"node\": \"記事ハッシュ保存\", \"status_code\": hash_status})\n    \n    return {\"execution_log_json\": json.dumps(log_record, ensure_ascii=False)}"
+        code_language: python3
+        outputs:
+          execution_log_json:
+            children: null
+            type: string
+        selected: false
+        title: 実行ログ記録準備
+        type: code
+        variables:
+        - value_selector:
+          - '1000000000014'
+          - filtered_findings
+          value_type: string
+          variable: filtered_findings
+        - value_selector:
+          - '1000000000014'
+          - diff_summary
+          value_type: string
+          variable: diff_summary
+        - value_selector:
+          - '1000000000002'
+          - date_range
+          value_type: string
+          variable: date_range
+        - value_selector:
+          - '1000000000002'
+          - today_iso
+          value_type: string
+          variable: today_iso
+        - value_selector:
+          - '1000000000017'
+          - status_code
+          value_type: number
+          variable: slack_status
+        - value_selector:
+          - '1000000000019'
+          - status_code
+          value_type: number
+          variable: delivery_status
+        - value_selector:
+          - '1000000000020'
+          - status_code
+          value_type: number
+          variable: hash_status
+      height: 51
+      id: '4000000000001'
+      position:
+        x: 6138
+        y: 178
+      positionAbsolute:
+        x: 6138
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-log-001
+            key: ''
+            type: text
+            value: '{{#4000000000001.execution_log_json#}}'
+          type: raw-text
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json
+
+          Prefer:return=minimal'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: 実行ログ保存
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/execution_log'
+        variables: []
+      height: 141
+      id: '4000000000002'
+      position:
+        x: 6480
+        y: 141
+      positionAbsolute:
+        x: 6480
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - type: text
+            value: ''
+          type: none
+        headers: 'apikey:{{#env.SUPABASE_ANON_KEY#}}
+
+          Authorization:Bearer {{#env.SUPABASE_ANON_KEY#}}
+
+          Content-Type:application/json'
+        method: get
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: 連続失敗チェック
+        type: http-request
+        url: '{{#env.SUPABASE_URL#}}/rest/v1/execution_log?select=status&order=execution_date.desc&limit=3'
+        variables: []
+      height: 141
+      id: '4000000000003'
+      position:
+        x: 6822
+        y: 141
+      positionAbsolute:
+        x: 6822
+        y: 141
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\ndef main(recent_logs: str, current_status: str) -> dict:\n    needs_escalation = False\n    consecutive_failures = 0\n    \n    try:\n        logs = json.loads(recent_logs)\n        if isinstance(logs, list):\n            for log in logs:\n                if log.get(\"status\") in (\"failed\", \"partial_failure\"):\n                    consecutive_failures += 1\n                else:\n                    break\n    except:\n        pass\n    \n    if consecutive_failures >= 3:\n        needs_escalation = True\n    \n    escalation_payload = \"\"\n    if needs_escalation:\n        escalation_payload = json.dumps({\n            \"text\": f\"\\U0001f6a8 AI News ワークフロー緊急通知: {consecutive_failures}回連続で障害が発生しています。確認してください。\",\n            \"blocks\": [\n                {\"type\": \"header\", \"text\": {\"type\": \"plain_text\", \"text\": \"\\U0001f6a8 連続障害アラート\", \"emoji\": True}},\n                {\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": f\"*{consecutive_failures}回連続*で実行に問題が発生しています。\\n\\n*直近ステータス:*\\n\" + \"\\n\".join([f\"\\u2022 {log.get('status', 'unknown')}\" for log in (json.loads(recent_logs) if recent_logs else [])])}}\n            ]\n        }, ensure_ascii=False)\n    \n    return {\n        \"needs_escalation\": \"true\" if needs_escalation else \"false\",\n        \"consecutive_failures\": str(consecutive_failures),\n        \"escalation_payload\": escalation_payload\n    }"
+        code_language: python3
+        outputs:
+          needs_escalation:
+            children: null
+            type: string
+          consecutive_failures:
+            children: null
+            type: string
+          escalation_payload:
+            children: null
+            type: string
+        selected: false
+        title: 失敗判定
+        type: code
+        variables:
+        - value_selector:
+          - '4000000000003'
+          - body
+          value_type: string
+          variable: recent_logs
+        - value_selector:
+          - '4000000000001'
+          - execution_log_json
+          value_type: string
+          variable: current_status
+      height: 51
+      id: '4000000000004'
+      position:
+        x: 7164
+        y: 178
+      positionAbsolute:
+        x: 7164
+        y: 178
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-escalation-001
+            key: ''
+            type: text
+            value: '{{#4000000000004.escalation_payload#}}'
+          type: raw-text
+        headers: Content-Type:application/json
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 0
+          retry_enabled: false
+          retry_interval: 0
+        selected: false
+        ssl_verify: true
+        timeout:
+          max_connect_timeout: 10
+          max_read_timeout: 15
+          max_write_timeout: 0
+        title: エスカレーション通知
+        type: http-request
+        url: '{{#env.SLACK_WEBHOOK_URL#}}'
+        variables: []
+      height: 125
+      id: '4000000000006'
+      position:
+        x: 7506
+        y: 141
+      positionAbsolute:
+        x: 7506
+        y: 141
       selected: false
       sourcePosition: right
       targetPosition: left

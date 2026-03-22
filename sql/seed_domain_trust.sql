@@ -18,6 +18,64 @@
 BEGIN;
 
 -- ------------------------------------------------------------
+-- 既存テーブルへのカラム追加（旧スキーマとの互換性確保）
+-- IF NOT EXISTS により、カラムが既にある場合はスキップされる
+-- ------------------------------------------------------------
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'domain_trust' AND column_name = 'updated_at'
+    ) THEN
+        ALTER TABLE domain_trust ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'domain_trust' AND column_name = 'usage_count'
+    ) THEN
+        ALTER TABLE domain_trust ADD COLUMN usage_count INTEGER DEFAULT 0;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'domain_trust' AND column_name = 'last_used_date'
+    ) THEN
+        ALTER TABLE domain_trust ADD COLUMN last_used_date DATE;
+    END IF;
+END $$;
+
+-- ============================================================
+-- STEP 1: 旧CHECK制約を先に削除（UPDATE前に実行が必須）
+-- 制約名 domain_trust_category_check は確認済み
+-- ============================================================
+ALTER TABLE domain_trust DROP CONSTRAINT IF EXISTS domain_trust_category_check;
+
+-- ============================================================
+-- STEP 2: 旧カテゴリ値を新体系にマイグレーション（制約なしの状態で実行）
+-- ============================================================
+UPDATE domain_trust SET category = 'official'       WHERE category IN ('official_blog', 'official_docs', 'github', 'cloud_provider', 'ai_company', 'product_hunt');
+UPDATE domain_trust SET category = 'academic'       WHERE category IN ('research', 'paper', 'preprint');
+UPDATE domain_trust SET category = 'gov_regulation' WHERE category IN ('government', 'regulation', 'standards', 'gov');
+UPDATE domain_trust SET category = 'major_media'    WHERE category IN ('press', 'media', 'news');
+UPDATE domain_trust SET category = 'secondary_jp'   WHERE category IN ('secondary', 'curation');
+-- 上記にマッチしなかった値を unknown に統一
+UPDATE domain_trust SET category = 'unknown'        WHERE category NOT IN (
+    'official', 'academic', 'major_media', 'gov_regulation',
+    'tech_blog', 'sns', 'secondary_jp', 'unknown'
+);
+
+-- ============================================================
+-- STEP 3: 新CHECK制約を追加
+-- ============================================================
+ALTER TABLE domain_trust ADD CONSTRAINT domain_trust_category_check
+    CHECK (category IN (
+        'official', 'academic', 'major_media',
+        'gov_regulation', 'tech_blog', 'sns',
+        'secondary_jp', 'unknown'
+    ));
+
+-- ------------------------------------------------------------
 -- official (trust_score: 10) — 公式ブログ・ドキュメント
 -- ------------------------------------------------------------
 -- AI企業
